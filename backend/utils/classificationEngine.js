@@ -11,7 +11,7 @@ class ClassificationEngine {
    * Classify member based on input data
    */
   static classifyMember(memberData, settings = null) {
-    const { membershipType, financial, wing, branch, sector, manualFinancial } = memberData;
+    const { membershipType, financial = {}, wing, branch, sector, manualFinancial } = memberData;
     let subType = null;
     let classificationRuleId = null;
     let monthlyFee = 0;

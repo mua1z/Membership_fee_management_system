@@ -175,7 +175,10 @@ export default function Dashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.paymentTrend.slice(-12)}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="_id.month" tickFormatter={(m) => new Date(2026, m - 1, 1).toLocaleString('default', { month: 'short' })} />
+              <XAxis 
+                dataKey="_id.month" 
+                tickFormatter={(m) => t(`common.eth_month_${m}`)} 
+              />
               <YAxis />
               <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
               <Legend />

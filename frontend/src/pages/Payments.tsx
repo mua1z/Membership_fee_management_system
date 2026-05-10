@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import PaymentModal from '../components/PaymentModal'
 import ReceiptModal from '../components/ReceiptModal'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { getCurrentEthiopianPeriod } from '../utils/ethiopianCalendar'
 
 interface Payment {
   _id?: string
@@ -49,8 +50,9 @@ export default function Payments() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'monthly' | 'history'>('monthly')
 
-  const currentYear = new Date().getFullYear()
-  const currentMonth = new Date().getMonth() + 1
+  const ethPeriod = getCurrentEthiopianPeriod()
+  const currentYear = ethPeriod.year
+  const currentMonth = ethPeriod.month
 
   // History State
   const [payments, setPayments] = useState<Payment[]>([])
@@ -115,6 +117,10 @@ export default function Payments() {
     try {
       const params: any = { page: historyPage, limit: historyLimit }
       if (historySearch) params.memberId = historySearch
+      
+      // Pass period for summary calculations
+      params.month = selectedMonthNum
+      params.year = selectedYearNum
       // New Hierarchy Params
       if (selectedSectorType) params.sectorType = selectedSectorType
       if (selectedSectorId) params.sectorId = selectedSectorId
@@ -536,24 +542,20 @@ export default function Payments() {
             {t('common.filter')}
           </button>
           
-          {activeTab === 'monthly' && (
-            <>
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
-              <label className="font-medium whitespace-nowrap text-xs text-gray-500 uppercase tracking-wider hidden md:block">{t('common.billing_period')}:</label>
-              <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-1">
-                <select value={selectedMonthNum} onChange={(e) => setSelectedMonthNum(Number(e.target.value))} className="bg-transparent border-none text-sm font-semibold focus:ring-0 cursor-pointer">
-                  {['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].map((m, i) => (
-                    <option key={i+1} value={i+1}>{t(`common.${m}`)}</option>
-                  ))}
-                </select>
-                <select value={selectedYearNum} onChange={(e) => setSelectedYearNum(Number(e.target.value))} className="bg-transparent border-none text-sm font-semibold focus:ring-0 cursor-pointer">
-                  {Array.from({ length: currentYear - 2000 + 1 }, (_, i) => currentYear - i).map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
+          <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+          <label className="font-medium whitespace-nowrap text-xs text-gray-500 uppercase tracking-wider hidden md:block">{t('common.billing_period')}:</label>
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-1">
+            <select value={selectedMonthNum} onChange={(e) => setSelectedMonthNum(Number(e.target.value))} className="bg-transparent border-none text-sm font-semibold focus:ring-0 cursor-pointer">
+              {Array.from({ length: 13 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>{t(`common.eth_month_${m}`)}</option>
+              ))}
+            </select>
+            <select value={selectedYearNum} onChange={(e) => setSelectedYearNum(Number(e.target.value))} className="bg-transparent border-none text-sm font-semibold focus:ring-0 cursor-pointer">
+              {Array.from({ length: 11 }, (_, i) => currentYear - 5 + i).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -883,25 +885,25 @@ export default function Payments() {
                       <td>{payment.currency}</td>
                       <td>{getMethodBadge(payment.method)}</td>
                       <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
-                      <td>{payment.period.month}/{payment.period.year}</td>
+                      <td>{t(`common.eth_month_${payment.period.month}`)} / {payment.period.year}</td>
                       <td>{payment.receivedBy}</td>
                       <td>
                         {/* GitHub-style 12-month schedule: highlight the paid period month */}
-                        <div className="flex gap-[3px] items-center">
-                          {['J','F','M','A','M','J','J','A','S','O','N','D'].map((letter, idx) => {
+                        <div className="flex gap-[2px] items-center">
+                          {Array.from({ length: 13 }, (_, idx) => {
                             const m = idx + 1
                             const isPaid = payment.period?.month === m && payment.period?.year === selectedYearNum
                             return (
                               <div
                                 key={m}
-                                title={`${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][idx]} ${payment.period?.year}: ${isPaid ? 'Paid' : 'No payment'}`}
-                                className={`w-5 h-5 rounded-sm flex items-center justify-center text-[8px] font-bold transition-all cursor-help
+                                title={`${t(`common.eth_month_${m}`)} ${selectedYearNum}: ${isPaid ? 'Paid' : 'No payment'}`}
+                                className={`w-4 h-4 rounded-sm flex items-center justify-center text-[7px] font-bold transition-all cursor-help
                                   ${ isPaid
                                     ? 'bg-green-500 text-white shadow-sm shadow-green-300'
                                     : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                                   }`}
                               >
-                                {letter}
+                                {m}
                               </div>
                             )
                           })}
@@ -985,7 +987,7 @@ export default function Payments() {
         open={confirmSaveSelected}
         variant="info"
         title="Record Selected Payments"
-        message={`This will record payments for ${members.filter(m => checkedIds[m._id] && m.paymentStatus === 'Unpaid').length} selected members for ${selectedMonthNum}/${selectedYearNum}.`}
+        message={`This will record payments for ${members.filter(m => checkedIds[m._id] && m.paymentStatus === 'Unpaid').length} selected members for ${t(`common.eth_month_${selectedMonthNum}`)} ${selectedYearNum}.`}
         confirmLabel="Record Payments"
         cancelLabel="Cancel"
         onConfirm={doSaveSelected}
@@ -996,7 +998,7 @@ export default function Payments() {
         open={confirmPayAll}
         variant="info"
         title="Pay All Unpaid Members"
-        message={`This will record payments for all ${confirmPayAllCount} unpaid members matching the current filters for ${selectedMonthNum}/${selectedYearNum}.`}
+        message={`This will record payments for all ${confirmPayAllCount} unpaid members matching the current filters for ${t(`common.eth_month_${selectedMonthNum}`)} ${selectedYearNum}.`}
         confirmLabel="Record All Payments"
         cancelLabel="Cancel"
         onConfirm={doPayAll}

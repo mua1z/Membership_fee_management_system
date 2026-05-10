@@ -38,7 +38,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
   const [employmentType, setEmploymentType] = useState('Government');
   const [sectors, setSectors] = useState<any[]>([]);
 
-  const [rows, setRows] = useState<RowData[]>([createEmptyRow()]);
+  const [rows, setRows] = useState<RowData[]>([createEmptyRow(), createEmptyRow(), createEmptyRow()]);
   const tableRef = useRef<HTMLDivElement>(null);
 
   function createEmptyRow(): RowData {
@@ -70,8 +70,16 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     }
   }, [selectedSectorType]);
 
+  const parseNumeric = (val: string | number): number => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    // Remove commas and any other non-numeric chars except decimal point
+    const cleaned = val.replace(/[^0-9.-]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
   const calculateRow = (salaryStr: string, currentSettings: any, empType: string): Pick<RowData, 'tax'|'pension'|'netSalary'|'percentage'|'monthlyFee'> => {
-    const gross = Number(salaryStr) || 0;
+    const gross = parseNumeric(salaryStr);
     if (gross <= 0) return { tax: 0, pension: 0, netSalary: 0, percentage: 0, monthlyFee: 0 };
 
     // Tax calculation
@@ -165,40 +173,65 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     if (pastedRows.length === 0) return;
 
     const newRows = [...rows];
+    let rowOffset = 0;
     
-    pastedRows.forEach((rowText, i) => {
-      const rowIndex = startIndex + i;
+    pastedRows.forEach((rowText) => {
       const columns = rowText.split('\t'); // Excel uses tabs
-      
-      if (columns.length >= 1) {
-        const fullName = columns[0].trim();
-        let gender = columns[1]?.trim() || 'Male';
-        const grossSalary = columns[2]?.trim() || '';
+      if (columns.length < 2) return; // Skip invalid lines
 
-        // Auto map gender
-        const gLow = gender.toLowerCase();
-        if (gLow === 'm' || gLow === 'ወ' || gLow === '1' || gLow === 'male') gender = 'Male';
-        else if (gLow === 'f' || gLow === 'ሴ' || gLow === '2' || gLow === 'female') gender = 'Female';
+      // Heuristic: If first column is numeric and second is text, it's likely [Serial, Name, Gender, Salary]
+      // Otherwise it's likely [Name, Gender, Salary]
+      let nameIdx = 0;
+      let genderIdx = 1;
+      let salaryIdx = 2;
 
-        const calcs = calculateRow(grossSalary, settings, employmentType);
-
-        const rowData: RowData = {
-          id: Math.random().toString(36).substr(2, 9),
-          fullName,
-          gender,
-          grossSalary,
-          ...calcs
-        };
-
-        if (rowIndex < newRows.length) {
-          newRows[rowIndex] = rowData;
-        } else {
-          newRows.push(rowData);
-        }
+      const firstColIsSerial = !isNaN(Number(columns[0])) && columns[0].length < 5;
+      if (firstColIsSerial && columns.length >= 3) {
+        nameIdx = 1;
+        genderIdx = 2;
+        salaryIdx = 3;
       }
+
+      const fullName = columns[nameIdx]?.trim();
+      // Skip header rows if detected
+      if (!fullName || fullName.toLowerCase() === 'full name' || fullName === 'ሙሉ ስም' || fullName === 'ተ.ቁ.') return;
+
+      // Duplicate check within the paste operation and existing rows
+      if (newRows.some(r => r.fullName === fullName)) {
+        console.warn(`Skipping duplicate name: ${fullName}`);
+        return;
+      }
+
+      let gender = columns[genderIdx]?.trim() || 'Male';
+      const grossSalaryRaw = columns[salaryIdx]?.trim() || '';
+
+      // Auto map gender
+      const gLow = gender.toLowerCase();
+      if (gLow === 'm' || gLow === 'ወ' || gLow === '1' || gLow === 'male' || gLow.includes('m/ወ')) gender = 'Male';
+      else if (gLow === 'f' || gLow === 'ሴ' || gLow === '2' || gLow === 'female' || gLow.includes('f/ሴ')) gender = 'Female';
+
+      const calcs = calculateRow(grossSalaryRaw, settings, employmentType);
+
+      const rowData: RowData = {
+        id: Math.random().toString(36).substr(2, 9),
+        fullName,
+        gender,
+        grossSalary: parseNumeric(grossSalaryRaw).toString(),
+        ...calcs
+      };
+
+      const targetIndex = startIndex + rowOffset;
+      if (targetIndex < newRows.length && newRows[targetIndex].fullName === '') {
+        newRows[targetIndex] = rowData;
+      } else {
+        newRows.push(rowData);
+      }
+      rowOffset++;
     });
 
-    setRows(newRows);
+    // Remove first empty row if we pasted over it but it stayed at the end or something
+    const finalRows = newRows.filter((r, idx) => r.fullName !== '' || idx === newRows.length - 1);
+    setRows(finalRows.length > 0 ? finalRows : [createEmptyRow()]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, index: number, field: string) => {
@@ -241,7 +274,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
       return;
     }
 
-    const validRows = rows.filter(r => r.fullName.trim() !== '' && Number(r.grossSalary) > 0);
+    const validRows = rows.filter(r => r.fullName.trim() !== '' && parseNumeric(r.grossSalary) > 0);
     if (validRows.length === 0) {
       setError('No valid rows to save. Please enter at least one member with a name and gross salary.');
       return;
@@ -255,7 +288,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         fullName: r.fullName,
         gender: r.gender,
         financial: {
-          salary: Number(r.grossSalary),
+          salary: parseNumeric(r.grossSalary),
           employmentType: employmentType,
           currency: 'ETB',
           occupationType: 'Informal'
@@ -267,8 +300,16 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         address: { region: 'Dire Dawa', city: 'Dire Dawa', woreda: '01' }
       }));
 
-      await api.post('/members/bulk-append', payload);
-      onSuccess();
+      const res = await api.post('/members/bulk-append', payload);
+      
+      if (res.data.skipped && res.data.skipped.length > 0) {
+        setError(`Saved ${res.data.data.length} members. ${res.data.skipped.length} members were skipped as they already exist.`);
+        setTimeout(() => {
+          onSuccess();
+        }, 2000);
+      } else {
+        onSuccess();
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || t('common.error'));
     } finally {
@@ -297,7 +338,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
             <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{t('common.total_members')}</p>
               <p className="text-lg font-black text-slate-900 dark:text-white leading-none">
-                {rows.filter(r => r.fullName.trim() !== '' && Number(r.grossSalary) > 0).length}
+                {rows.filter(r => r.fullName.trim() !== '' && parseNumeric(r.grossSalary) > 0).length}
               </p>
             </div>
             <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
@@ -371,7 +412,8 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                 <option value="">{t('common.search')}...</option>
                 {categories.filter(c => {
                   const n = c.name.toLowerCase();
-                  return n.includes('employee') || n.includes('ሰራተኛ');
+                  return n === 'employee members' || n === 'employee youth wing members' || n === 'employee women wing members' || 
+                         n.includes('የመንግስት ሰራተኛ') || n.includes('የሰራተኛ ወጣት') || n.includes('የሰራተኛ ሴቶች');
                 }).map(c => (
                   <option key={c.id} value={c.id}>{t(`common.${c.name}`, { defaultValue: c.name })}</option>
                 ))}
@@ -486,7 +528,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         {/* Footer */}
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 md:p-6 flex items-center justify-between shrink-0">
           <div className="text-sm text-gray-500">
-            {t('common.valid_rows_ready', { count: rows.filter(r => r.fullName && Number(r.grossSalary) > 0).length })}
+            {t('common.valid_rows_ready', { count: rows.filter(r => r.fullName && parseNumeric(r.grossSalary) > 0).length })}
           </div>
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="btn btn-secondary px-6">

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import api from '../lib/api'
 import { X } from 'lucide-react'
+import { getCurrentEthiopianPeriod } from '../utils/ethiopianCalendar'
+import { useTranslation } from 'react-i18next'
 
 interface PaymentModalProps {
   onClose: () => void
@@ -16,8 +18,12 @@ interface Member {
 }
 
 export default function PaymentModal({ onClose, onSuccess }: PaymentModalProps) {
+  const { t } = useTranslation()
   const [members, setMembers] = useState<Member[]>([])
   const [selectedMember, setSelectedMember] = useState('')
+  
+  const ethPeriod = getCurrentEthiopianPeriod()
+  
   const [formData, setFormData] = useState({
     amount: 0,
     currency: 'ETB',
@@ -25,8 +31,8 @@ export default function PaymentModal({ onClose, onSuccess }: PaymentModalProps) 
     method: 'Cash' as string,
     receivedBy: '',
     period: {
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear()
+      month: ethPeriod.month,
+      year: ethPeriod.year
     },
     notes: ''
   })
@@ -153,14 +159,15 @@ export default function PaymentModal({ onClose, onSuccess }: PaymentModalProps) 
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Month</label>
-              <input
-                type="number"
-                min={1}
-                max={12}
+              <select
                 value={formData.period.month}
                 onChange={(e) => setFormData(prev => ({ ...prev, period: { ...prev.period, month: Number(e.target.value) } }))}
                 className="input"
-              />
+              >
+                {Array.from({ length: 13 }, (_, i) => i + 1).map(m => (
+                  <option key={m} value={m}>{t(`common.eth_month_${m}`)}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Year</label>

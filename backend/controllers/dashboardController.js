@@ -2,14 +2,15 @@
 const Member  = require('../models/Member');
 const Payment = require('../models/Payment');
 const Receipt = require('../models/Receipt');
+const { getEthiopianYear, getEthiopianMonth } = require('../utils/ethiopianCalendar');
 
 exports.getDashboardStats = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
 
-    const currentYear  = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
+    const currentYear  = getEthiopianYear();
+    const currentMonth = getEthiopianMonth();
 
     // ── Sector scoping ─────────────────────────────────────────────────────────
     // scopeSector middleware injects req.query.sectorId for sector_officer role
@@ -191,7 +192,7 @@ exports.getGrowthRate = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
-    const currentYear = new Date().getFullYear();
+    const currentYear = getEthiopianYear();
     const lastYear    = currentYear - 1;
 
     const sectorId  = req.query.sectorId;
