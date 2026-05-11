@@ -7,6 +7,7 @@ const Receipt = require('../models/Receipt');
 const Contribution = require('../models/Contribution');
 const Setting = require('../models/Setting');
 const ClassificationEngine = require('../utils/classificationEngine');
+const { getEthiopianYear } = require('../utils/ethiopianCalendar');
 
 // ─── Helper: flatten nested member data → flat DB columns ────────────────────
 function flattenMemberData(data) {
@@ -70,12 +71,11 @@ function flattenMemberData(data) {
   return flat;
 }
 
-// ─── Helper: generate 12-month payment schedule ───────────────────────────────
+// ─── Helper: generate 13-month Ethiopian payment schedule ─────────────────────
 function generatePaymentSchedule(year, dayOfMonth) {
   const schedule = [];
-  for (let month = 1; month <= 12; month++) {
-    const expectedDate = new Date(year, month - 1, Math.min(dayOfMonth, 28));
-    schedule.push({ month, year, expectedDate, status: 'Unpaid', actualPaymentDate: null, paymentId: null });
+  for (let month = 1; month <= 13; month++) {
+    schedule.push({ month, year, expectedDate: null, status: 'Unpaid', actualPaymentDate: null, paymentId: null });
   }
   return schedule;
 }
@@ -89,9 +89,22 @@ exports.createMember = async (req, res) => {
     
     const classification = ClassificationEngine.autoClassifyAndCalculate(memberData, settings);
 
-    const currentYear = new Date().getFullYear();
+    const currentYear = getEthiopianYear();
     const paymentDay  = memberData.paymentDay || 1;
     const paymentSchedule = generatePaymentSchedule(currentYear, paymentDay);
+
+    const existing = await Member.findOne({ 
+      where: { 
+        [Op.or]: [
+          { fullName: memberData.fullName },
+          ...(memberData.phone ? [{ phone: memberData.phone }] : [])
+        ]
+      } 
+    });
+    if (existing) {
+      const matchedBy = existing.fullName === memberData.fullName ? `name '${memberData.fullName}'` : `phone '${memberData.phone}'`;
+      return res.status(400).json({ success: false, message: `A member with this ${matchedBy} already exists.` });
+    }
 
     const flat = flattenMemberData({
       ...memberData,
@@ -408,20 +421,42 @@ exports.bulkAppendMembers = async (req, res) => {
 
     const createdMembers = [];
     const errors = [];
+    const skipped = [];
     let settings = await Setting.findOne();
     if (!settings) settings = await Setting.create({});
+
+    // Bulk check for existing names to avoid duplicates
+    const inputNames = members.map(m => m.fullName).filter(Boolean);
+    const existingMembers = await Member.findAll({
+      where: { fullName: { [Op.in]: inputNames } },
+      attributes: ['fullName']
+    });
+    const existingNamesSet = new Set(existingMembers.map(m => m.fullName));
 
     for (let i = 0; i < members.length; i++) {
       try {
         const memberData = members[i];
         
+        // Skip if name already exists in DB
+        if (existingNamesSet.has(memberData.fullName)) {
+          skipped.push({ name: memberData.fullName, reason: 'Name already exists' });
+          continue;
+        }
+
+        // Local duplicate check (within the same request)
+        if (createdMembers.some(m => m.fullName === memberData.fullName)) {
+          skipped.push({ name: memberData.fullName, reason: 'Duplicate in input list' });
+          continue;
+        }
+
         if (!memberData.phone || memberData.phone.trim() === '') {
           memberData.phone = `NOPHONE-${Date.now()}-${i}-${Math.floor(Math.random() * 100000)}`;
         }
         
         const classification = ClassificationEngine.autoClassifyAndCalculate(memberData, settings);
-        const currentYear = new Date().getFullYear();
-        const paymentSchedule = generatePaymentSchedule(currentYear, memberData.paymentDay || 1);
+        const currentYear = getEthiopianYear();
+        const paymentDay  = memberData.paymentDay || 1;
+        const paymentSchedule = generatePaymentSchedule(currentYear, paymentDay);
 
         const flat = flattenMemberData({
           ...memberData,
@@ -448,9 +483,10 @@ exports.bulkAppendMembers = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `Added ${createdMembers.length} members successfully`,
+      message: `Successfully added ${createdMembers.length} members. ${skipped.length} skipped as duplicates.`,
       data: createdMembers,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
+      skipped: skipped.length > 0 ? skipped : undefined
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

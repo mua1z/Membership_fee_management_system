@@ -214,7 +214,7 @@ export default function ReceiptModal({ receiptId, onClose }: ReceiptModalProps) 
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('common.payment_period')}</p>
                 <p className="font-semibold">
-                  {receipt.period.month}/{receipt.period.year}
+                  {t(`common.eth_month_${receipt.period.month}`)} / {receipt.period.year}
                 </p>
               </div>
               <div>

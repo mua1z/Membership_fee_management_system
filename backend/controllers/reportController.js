@@ -2,6 +2,7 @@
 const Member  = require('../models/Member');
 const Payment = require('../models/Payment');
 const Receipt = require('../models/Receipt');
+const { getEthiopianYear, getEthiopianMonth } = require('../utils/ethiopianCalendar');
 
 // ─── Shared helper: build scope strings from sectorId ─────────────────────────
 function buildScope(sequelize, sectorId) {
@@ -22,8 +23,8 @@ exports.monthlyRevenue = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
-    const currentMonth = Number(req.query.month) || new Date().getMonth() + 1;
-    const currentYear  = Number(req.query.year)  || new Date().getFullYear();
+    const currentMonth = Number(req.query.month) || getEthiopianMonth();
+    const currentYear  = Number(req.query.year)  || getEthiopianYear();
     const { pWhere, mWhere } = buildScope(sequelize, req.query.sectorId);
 
     const [summary] = await sequelize.query(
@@ -94,7 +95,7 @@ exports.yearlyRevenue = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
-    const currentYear = Number(req.query.year) || new Date().getFullYear();
+    const currentYear = Number(req.query.year) || getEthiopianYear();
     const { pWhere } = buildScope(sequelize, req.query.sectorId);
 
     const yearlyData = await sequelize.query(
@@ -127,7 +128,7 @@ exports.hqBranchDistribution = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
-    const currentYear = Number(req.query.year) || new Date().getFullYear();
+    const currentYear = Number(req.query.year) || getEthiopianYear();
     const { memberWhere } = buildScope(sequelize, req.query.sectorId);
 
     const [row] = await sequelize.query(
@@ -161,8 +162,8 @@ exports.defaulterReport = async (req, res) => {
   try {
     const { sequelize } = require('../config/db');
     const Q = sequelize.QueryTypes.SELECT;
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear  = new Date().getFullYear();
+    const currentMonth = getEthiopianMonth();
+    const currentYear  = getEthiopianYear();
     const { mWhere } = buildScope(sequelize, req.query.sectorId);
 
     const defaulters = await sequelize.query(`

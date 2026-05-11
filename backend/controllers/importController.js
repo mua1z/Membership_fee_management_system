@@ -1,10 +1,12 @@
 // controllers/importController.js - Excel/CSV Import Controller (MySQL / Sequelize)
 const xlsx = require('xlsx');
+const { Op } = require('sequelize');
 const Member = require('../models/Member');
 const SectorUnit = require('../models/SectorUnit');
 const MemberCategory = require('../models/MemberCategory');
 const Setting = require('../models/Setting');
 const ClassificationEngine = require('../utils/classificationEngine');
+const { getEthiopianYear } = require('../utils/ethiopianCalendar');
 
 // Helper: flatten nested member data (same logic as memberController)
 function flattenMemberData(data) {
@@ -52,6 +54,15 @@ function flattenMemberData(data) {
   delete flat._id;
   delete flat.id;
   return flat;
+}
+
+// Helper: generate 13-month Ethiopian payment schedule
+function generatePaymentSchedule(year, dayOfMonth) {
+  const schedule = [];
+  for (let month = 1; month <= 13; month++) {
+    schedule.push({ month, year, expectedDate: null, status: 'Unpaid', actualPaymentDate: null, paymentId: null });
+  }
+  return schedule;
 }
 
 // Import members from Excel/CSV
@@ -170,10 +181,19 @@ exports.importMembers = async (req, res) => {
           memberData.phone = `NOPHONE-${Date.now()}-${i}-${Math.floor(Math.random() * 100000)}`;
         }
 
-        // Check for duplicates
-        const existing = await Member.findOne({ where: { phone: memberData.phone } });
+        // Check for duplicates (Phone or Name)
+        const existing = await Member.findOne({ 
+          where: { 
+            [Op.or]: [
+              { phone: memberData.phone },
+              { fullName: memberData.fullName }
+            ]
+          } 
+        });
+
         if (existing) {
-          results.errors.push({ row: rowNum, error: `Duplicate Found: Phone number '${memberData.phone}' is already registered to ${existing.fullName}.` }); 
+          const matchedBy = existing.phone === memberData.phone ? `Phone '${memberData.phone}'` : `Name '${memberData.fullName}'`;
+          results.duplicates.push({ row: rowNum, name: memberData.fullName, error: `Duplicate Found: ${matchedBy} is already registered.` }); 
           continue;
         }
 
@@ -287,6 +307,7 @@ exports.importMembers = async (req, res) => {
             branchShare: classification.branchShare
           },
           netSalary:    classification.netSalary,
+          paymentSchedule: generatePaymentSchedule(getEthiopianYear(), memberData.paymentDay || 1),
           importedFrom: req.file.originalname
         });
 

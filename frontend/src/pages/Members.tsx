@@ -8,6 +8,7 @@ import MemberModal from '../components/MemberModal'
 import ImportModal from '../components/ImportModal'
 import FastEntryModal from '../components/FastEntryModal'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { getCurrentEthiopianPeriod } from '../utils/ethiopianCalendar'
 
 interface Member {
   _id: string
@@ -110,8 +111,8 @@ export default function Members() {
     membershipType: '', 
     status: '', 
     paymentStatus: '',
-    billingYear: new Date().getFullYear(),
-    billingMonth: new Date().getMonth() + 1
+    billingYear: getCurrentEthiopianPeriod().year,
+    billingMonth: getCurrentEthiopianPeriod().month
   })
   const [showFilters, setShowFilters] = useState(true)
   const [showMemberModal, setShowMemberModal] = useState(false)
@@ -662,8 +663,8 @@ export default function Members() {
                 onChange={(e) => { setFilters(prev => ({ ...prev, billingMonth: Number(e.target.value) })); setPagination(prev => ({ ...prev, page: 1 })) }}
                 className="input"
               >
-                {['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].map((m, i) => (
-                  <option key={i+1} value={i+1}>{t(`common.${m}`)}</option>
+                {Array.from({ length: 13 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>{t(`common.eth_month_${m}`)}</option>
                 ))}
               </select>
               <select
@@ -671,7 +672,7 @@ export default function Members() {
                 onChange={(e) => { setFilters(prev => ({ ...prev, billingYear: Number(e.target.value) })); setPagination(prev => ({ ...prev, page: 1 })) }}
                 className="input"
               >
-                {Array.from({ length: new Date().getFullYear() - 2000 + 1 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                {Array.from({ length: 11 }, (_, i) => getCurrentEthiopianPeriod().year - 5 + i).map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
@@ -686,7 +687,7 @@ export default function Members() {
               <button
                 onClick={() => {
                   setSelectedSectorType(''); setSelectedSectorId(''); setSelectedCategoryId('');
-                  setFilters({ cluster:'', branch:'', sector:'', membershipType:'', status:'', paymentStatus:'', billingYear: new Date().getFullYear(), billingMonth: new Date().getMonth()+1 });
+                  setFilters({ cluster:'', branch:'', sector:'', membershipType:'', status:'', paymentStatus:'', billingYear: getCurrentEthiopianPeriod().year, billingMonth: getCurrentEthiopianPeriod().month });
                   setSearch(''); setHasFiltered(false); setMembers([]);
                   setSummary({ totalMembers:0, totalMonthlyRevenue:0, totalYearlyRevenue:0 });
                 }}

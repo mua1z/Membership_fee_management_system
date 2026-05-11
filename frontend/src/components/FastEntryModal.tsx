@@ -38,7 +38,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
   const [employmentType, setEmploymentType] = useState('Government');
   const [sectors, setSectors] = useState<any[]>([]);
 
-  const [rows, setRows] = useState<RowData[]>([createEmptyRow()]);
+  const [rows, setRows] = useState<RowData[]>([createEmptyRow(), createEmptyRow(), createEmptyRow()]);
   const tableRef = useRef<HTMLDivElement>(null);
 
   function createEmptyRow(): RowData {
@@ -80,10 +80,17 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     }
   }, [selectedCategoryId, employmentType, settings]);
 
+  const parseNumeric = (val: string | number): number => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    const cleaned = val.replace(/[^0-9.-]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
   const calculateRow = (salaryStr: string, currentSettings: any, empType: string): Pick<RowData, 'tax'|'pension'|'netSalary'|'percentage'|'monthlyFee'> => {
-    const gross = Number(salaryStr) || 0;
+    const gross = parseNumeric(salaryStr);
     
-    // 1. Get Category Context
+    // Get Category Context
     const selectedCat = categories.find(c => String(c.id) === selectedCategoryId);
     const catName = selectedCat?.name.toLowerCase() || '';
 
@@ -93,9 +100,8 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     let netSalary = 0;
     let percentage = 0;
 
-    // 2. Specialized Tiers (Can work with 0 or string salary)
+    // Specialized Tiers
     if (catName.includes('wing')) {
-      // Wing Tiers (Article 7 & 8)
       if (gross >= 1000) {
         if (gross <= 3000) monthlyFee = 2;
         else if (gross <= 5000) monthlyFee = 5;
@@ -107,14 +113,12 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         monthlyFee = 10; 
       }
     } else if (catName.includes('enterprise') || catName.includes('business')) {
-      // Business Tiers: Micro (5), Small (10), Medium (20)
       const type = salaryStr.toLowerCase();
       if (type.includes('micro') || (gross > 0 && gross <= 50000)) monthlyFee = 5;
       else if (type.includes('small') || (gross > 50000 && gross <= 250000)) monthlyFee = 10;
       else if (type.includes('medium') || gross > 250000) monthlyFee = 20;
-      else monthlyFee = 5; // Default to Micro if selected but 0 input
+      else monthlyFee = 5;
     } else if (catName.includes('investor')) {
-      // Investor Tiers: 500, 1000, 2000
       if (gross <= 5000000) monthlyFee = 500;
       else if (gross <= 10000000) monthlyFee = 1000;
       else monthlyFee = 2000;
@@ -123,10 +127,8 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     } else if (catName.includes('resident') || catName.includes('farmer')) {
       monthlyFee = 5;
     } else {
-      // Standard Salary-Based
       if (gross <= 0) return { tax: 0, pension: 0, netSalary: 0, percentage: 0, monthlyFee: 0 };
 
-      // Tax calculation
       const taxBrackets = currentSettings?.salaryBased?.taxBrackets;
       if (taxBrackets && Array.isArray(taxBrackets) && taxBrackets.length > 0) {
         const sorted = [...taxBrackets].sort((a, b) => a.threshold - b.threshold);
@@ -147,17 +149,12 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         else tax = (gross * 0.35) - 2050;
       }
 
-      // Pension calculation
       const pensionPerc = currentSettings?.salaryBased?.pensionPercentage ?? 7;
       pension = gross * (pensionPerc / 100);
-
-      // Net Salary
       netSalary = Math.max(0, gross - tax - pension);
 
-      // Fee Calculation (Standard Salary-Based)
       const calcBase = currentSettings?.salaryBased?.calculationBase || 'Net';
       const salaryToUse = calcBase === 'Net' ? netSalary : gross;
-
       const brackets = currentSettings?.salaryBased?.[empType.toLowerCase()] || currentSettings?.salaryBased?.private || [];
 
       if (brackets.length > 0) {
@@ -180,7 +177,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         else if (salaryToUse <= 10000) percentage = 1.8;
         else percentage = 2.0;
       }
-
       monthlyFee = salaryToUse * (percentage / 100);
     }
 
@@ -189,22 +185,16 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
 
   const updateRow = (index: number, field: keyof RowData, value: string) => {
     const newRows = [...rows];
-    
-    // Auto map gender single chars
     if (field === 'gender') {
       const v = value.toLowerCase();
       if (v === 'm' || v === 'ወ' || v === '1') value = 'Male';
       else if (v === 'f' || v === 'ሴ' || v === '2') value = 'Female';
     }
-
     newRows[index] = { ...newRows[index], [field]: value };
-
-    // If salary was changed, recalculate
     if (field === 'grossSalary') {
       const calcs = calculateRow(value, settings, employmentType);
       newRows[index] = { ...newRows[index], ...calcs };
     }
-
     setRows(newRows);
   };
 
@@ -212,50 +202,52 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
     e.preventDefault();
     const clipboardData = e.clipboardData.getData('text');
     const pastedRows = clipboardData.split(/\r?\n/).filter(line => line.trim() !== '');
-    
     if (pastedRows.length === 0) return;
-
     const newRows = [...rows];
-    
-    pastedRows.forEach((rowText, i) => {
-      const rowIndex = startIndex + i;
-      const columns = rowText.split('\t'); // Excel uses tabs
-      
-      if (columns.length >= 1) {
-        const fullName = columns[0].trim();
-        let gender = columns[1]?.trim() || 'Male';
-        const grossSalary = columns[2]?.trim() || '';
-
-        // Auto map gender
-        const gLow = gender.toLowerCase();
-        if (gLow === 'm' || gLow === 'ወ' || gLow === '1' || gLow === 'male') gender = 'Male';
-        else if (gLow === 'f' || gLow === 'ሴ' || gLow === '2' || gLow === 'female') gender = 'Female';
-
-        const calcs = calculateRow(grossSalary, settings, employmentType);
-
-        const rowData: RowData = {
-          id: Math.random().toString(36).substr(2, 9),
-          fullName,
-          gender,
-          grossSalary,
-          ...calcs
-        };
-
-        if (rowIndex < newRows.length) {
-          newRows[rowIndex] = rowData;
-        } else {
-          newRows.push(rowData);
-        }
+    let rowOffset = 0;
+    pastedRows.forEach((rowText) => {
+      const columns = rowText.split('\t');
+      if (columns.length < 2) return;
+      let nameIdx = 0;
+      let genderIdx = 1;
+      let salaryIdx = 2;
+      const firstColIsSerial = !isNaN(Number(columns[0])) && columns[0].length < 5;
+      if (firstColIsSerial && columns.length >= 3) {
+        nameIdx = 1;
+        genderIdx = 2;
+        salaryIdx = 3;
       }
+      const fullName = columns[nameIdx]?.trim();
+      if (!fullName || fullName.toLowerCase() === 'full name' || fullName === 'ሙሉ ስም' || fullName === 'ተ.ቁ.') return;
+      if (newRows.some(r => r.fullName === fullName)) return;
+      let gender = columns[genderIdx]?.trim() || 'Male';
+      const grossSalaryRaw = columns[salaryIdx]?.trim() || '';
+      const gLow = gender.toLowerCase();
+      if (gLow === 'm' || gLow === 'ወ' || gLow === '1' || gLow === 'male' || gLow.includes('m/ወ')) gender = 'Male';
+      else if (gLow === 'f' || gLow === 'ሴ' || gLow === '2' || gLow === 'female' || gLow.includes('f/ሴ')) gender = 'Female';
+      const calcs = calculateRow(grossSalaryRaw, settings, employmentType);
+      const rowData: RowData = {
+        id: Math.random().toString(36).substr(2, 9),
+        fullName,
+        gender,
+        grossSalary: parseNumeric(grossSalaryRaw).toString(),
+        ...calcs
+      };
+      const targetIndex = startIndex + rowOffset;
+      if (targetIndex < newRows.length && newRows[targetIndex].fullName === '') {
+        newRows[targetIndex] = rowData;
+      } else {
+        newRows.push(rowData);
+      }
+      rowOffset++;
     });
-
-    setRows(newRows);
+    const finalRows = newRows.filter((r, idx) => r.fullName !== '' || idx === newRows.length - 1);
+    setRows(finalRows.length > 0 ? finalRows : [createEmptyRow()]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, index: number, field: string) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      // If last row and salary is filled, add new row
       if (index === rows.length - 1 && field === 'grossSalary' && rows[index].grossSalary) {
         setRows([...rows, createEmptyRow()]);
         setTimeout(() => {
@@ -263,7 +255,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
           if (inputs && inputs.length > 0) (inputs[0] as HTMLInputElement).focus();
         }, 50);
       } else {
-        // Move to next field
         if (field === 'fullName') {
           const inputs = tableRef.current?.querySelectorAll(`select[name="gender-${index}"]`);
           if (inputs && inputs.length > 0) (inputs[0] as HTMLSelectElement).focus();
@@ -279,11 +270,8 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
   };
 
   const removeRow = (index: number) => {
-    if (rows.length === 1) {
-      setRows([createEmptyRow()]);
-    } else {
-      setRows(rows.filter((_, i) => i !== index));
-    }
+    if (rows.length === 1) setRows([createEmptyRow()]);
+    else setRows(rows.filter((_, i) => i !== index));
   };
 
   const selectedCat = categories.find(c => String(c.id) === selectedCategoryId);
@@ -300,30 +288,25 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
       setError(t('common.please_select_sector_and_category'));
       return;
     }
-
-    // For non-salary categories, allow 0 salary. For others, require > 0.
     const isSalaryRequired = mType === 'Salary-Based' || mType === 'Investor';
     const validRows = rows.filter(r => {
       const nameOk = r.fullName.trim() !== '';
-      const salaryOk = isSalaryRequired ? Number(r.grossSalary) > 0 : (mType === 'Business' ? !!r.grossSalary : true);
+      const salaryOk = isSalaryRequired ? parseNumeric(r.grossSalary) > 0 : (mType === 'Business' ? !!r.grossSalary : true);
       return nameOk && salaryOk;
     });
-
     if (validRows.length === 0) {
       setError('No valid rows to save. Please enter member names.');
       return;
     }
-
     setSaving(true);
     setError('');
-
     try {
       const payload = validRows.map(r => ({
         fullName: r.fullName,
         gender: r.gender,
         financial: {
-          salary: mType === 'Salary-Based' || mType === 'Wing' ? Number(r.grossSalary) : 0,
-          capital: mType === 'Investor' ? Number(r.grossSalary) : 0,
+          salary: mType === 'Salary-Based' || mType === 'Wing' ? parseNumeric(r.grossSalary) : 0,
+          capital: mType === 'Investor' ? parseNumeric(r.grossSalary) : 0,
           income: mType === 'Business' && !isNaN(Number(r.grossSalary)) ? Number(r.grossSalary) : 0,
           businessType: mType === 'Business' ? r.grossSalary : undefined,
           employmentType: employmentType,
@@ -337,9 +320,13 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         paymentDay: 1,
         address: { region: 'Dire Dawa', city: 'Dire Dawa', woreda: '01' }
       }));
-
-      await api.post('/members/bulk-append', payload);
-      onSuccess();
+      const res = await api.post('/members/bulk-append', payload);
+      if (res.data.skipped && res.data.skipped.length > 0) {
+        setError(`Saved ${res.data.data.length} members. ${res.data.skipped.length} members were skipped as they already exist.`);
+        setTimeout(() => onSuccess(), 2000);
+      } else {
+        onSuccess();
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || t('common.error'));
     } finally {
@@ -350,8 +337,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
-        
-        {/* Header */}
         <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 p-4 md:p-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -362,13 +347,11 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
               <p className="text-xs text-gray-500">{t('common.fast_entry_subtitle')}</p>
             </div>
           </div>
-
-          {/* Live Summary Stats */}
           <div className="hidden lg:flex items-center gap-4">
             <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{t('common.total_members')}</p>
               <p className="text-lg font-black text-slate-900 dark:text-white leading-none">
-                {rows.filter(r => r.fullName.trim() !== '' && Number(r.grossSalary) > 0).length}
+                {rows.filter(r => r.fullName.trim() !== '' && parseNumeric(r.grossSalary) > 0).length}
               </p>
             </div>
             <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
@@ -384,13 +367,10 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
               </p>
             </div>
           </div>
-
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Filters Top Bar */}
         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm flex items-center justify-between">
@@ -398,7 +378,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
               <button onClick={() => setError('')}><X className="w-4 h-4" /></button>
             </div>
           )}
-          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {userRole !== 'sector_officer' && (
               <div>
@@ -418,7 +397,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                 </select>
               </div>
             )}
-
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">{t('common.sector_unit')} *</label>
               <select
@@ -431,7 +409,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                 {sectors.map(s => <option key={s.id} value={s.id}>{t(`common.${s.name}`, { defaultValue: s.name })}</option>)}
               </select>
             </div>
-
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">{t('common.category')} *</label>
               <select
@@ -440,12 +417,15 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                 className="input bg-white dark:bg-gray-900 w-full"
               >
                 <option value="">{t('common.search')}...</option>
-                {categories.map(c => (
+                {categories.filter(c => {
+                  const n = c.name.toLowerCase();
+                  return n === 'employee members' || n === 'employee youth wing members' || n === 'employee women wing members' || 
+                         n.includes('የመንግስት ሰራተኛ') || n.includes('የሰራተኛ ወጣት') || n.includes('የሰራተኛ ሴቶች');
+                }).map(c => (
                   <option key={c.id} value={c.id}>{t(`common.${c.name}`, { defaultValue: c.name })}</option>
                 ))}
               </select>
             </div>
-
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">{t('common.employment_type')} *</label>
               <select
@@ -464,8 +444,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
             </div>
           </div>
         </div>
-
-        {/* Spreadsheet Area */}
         <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-950 p-4" ref={tableRef}>
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden min-w-[1000px]">
             <table className="w-full text-left text-sm whitespace-nowrap">
@@ -474,8 +452,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                   <th className="px-4 py-3 w-12 text-center text-gray-500">ተ.ቁ.</th>
                   <th className="px-4 py-3">{t('common.full_name')}</th>
                   <th className="px-4 py-3 w-32">{t('common.sex')}</th>
-                  
-                  {/* Dynamic Financial Header */}
                   {(mType === 'Salary-Based' || mType === 'Wing') && (
                     <>
                       <th className="px-4 py-3 w-40">{t('common.gross_salary_etb')}</th>
@@ -487,7 +463,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                   )}
                   {mType === 'Business' && <th className="px-4 py-3 w-40">{t('common.business_type')}</th>}
                   {mType === 'Investor' && <th className="px-4 py-3 w-40">{t('common.capital')} (ETB)</th>}
-                  
                   <th className="px-4 py-3 w-36">{t('common.monthly_fee')}</th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
@@ -521,8 +496,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         <option value="Female">{t('common.female')} (F/ሴ)</option>
                       </select>
                     </td>
-
-                    {/* Financial Inputs / Displays */}
                     {(mType === 'Salary-Based' || mType === 'Wing' || mType === 'Investor') && (
                       <td className="px-4 py-1">
                         <input
@@ -536,7 +509,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         />
                       </td>
                     )}
-
                     {mType === 'Business' && (
                       <td className="px-4 py-1">
                         <select
@@ -552,7 +524,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         </select>
                       </td>
                     )}
-
                     {(mType === 'Salary-Based' || mType === 'Wing') && (
                       <>
                         <td className="px-4 py-2 text-gray-500 font-mono text-xs">{row.tax > 0 ? row.tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
@@ -561,7 +532,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         <td className="px-4 py-2 text-gray-500 font-mono text-xs">{row.percentage > 0 ? `${row.percentage}%` : '-'}</td>
                       </>
                     )}
-
                     <td className="px-4 py-2 text-green-600 dark:text-green-400 font-mono font-bold text-sm">
                       {row.monthlyFee > 0 ? row.monthlyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : (mType === 'Student' || mType === 'Non-Salary' ? calculateRow('0', settings, employmentType).monthlyFee : '-')}
                     </td>
@@ -574,8 +544,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                 ))}
               </tbody>
             </table>
-            
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-2 border-t border-gray-200 dark:border-gray-800">
+            <div className="bg-gray-50 dark:bg-gray-800/50 p-2 border-t border-gray-200 dark:border-gray-700">
               <button 
                 onClick={() => setRows([...rows, createEmptyRow()])}
                 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-2 rounded-lg transition-colors"
@@ -587,11 +556,9 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
             </div>
           </div>
         </div>
-
-        {/* Footer */}
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 md:p-6 flex items-center justify-between shrink-0">
           <div className="text-sm text-gray-500">
-            {t('common.valid_rows_ready', { count: rows.filter(r => r.fullName && Number(r.grossSalary) > 0).length })}
+            {t('common.valid_rows_ready', { count: rows.filter(r => r.fullName && parseNumeric(r.grossSalary) > 0).length })}
           </div>
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="btn btn-secondary px-6">
@@ -607,7 +574,6 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -116,8 +116,11 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
     }
   }, [member])
 
+  const [settings, setSettings] = useState<any>(null)
+
   useEffect(() => {
     api.get('/sector-types').then(res => setSectorTypes(res.data))
+    api.get('/settings').then(res => setSettings(res.data)).catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -167,6 +170,74 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
 
   const sectorUnitLabel = SECTOR_UNIT_LABELS[selectedSectorType] || t('common.sector_unit')
   const sectorUnitPlaceholder = t('common.search') + '...'
+
+  const calculateFinancials = () => {
+    const gross = formData.financial.salary || 0;
+    if (gross <= 0) return null;
+
+    // Tax calculation
+    const taxBrackets = settings?.salaryBased?.taxBrackets;
+    let tax = 0;
+    if (taxBrackets && Array.isArray(taxBrackets) && taxBrackets.length > 0) {
+      const sorted = [...taxBrackets].sort((a, b) => a.threshold - b.threshold);
+      let appliedBracket = sorted[sorted.length - 1];
+      for (const b of sorted) {
+        if (gross <= b.threshold) {
+          appliedBracket = b;
+          break;
+        }
+      }
+      tax = Math.max(0, (gross * (appliedBracket.rate || 0)) - (appliedBracket.deduction || 0));
+    } else {
+      if (gross <= 2000) tax = 0;
+      else if (gross <= 4000) tax = (gross * 0.15) - 300;
+      else if (gross <= 7000) tax = (gross * 0.20) - 500;
+      else if (gross <= 10000) tax = (gross * 0.25) - 850;
+      else if (gross <= 14000) tax = (gross * 0.30) - 1350;
+      else tax = (gross * 0.35) - 2050;
+    }
+
+    // Pension calculation
+    const pensionPerc = settings?.salaryBased?.pensionPercentage ?? 7;
+    const pension = gross * (pensionPerc / 100);
+
+    // Net Salary
+    const netSalary = Math.max(0, gross - tax - pension);
+
+    // Fee Calculation
+    const calcBase = settings?.salaryBased?.calculationBase || 'Net';
+    const salaryToUse = calcBase === 'Net' ? netSalary : gross;
+
+    const brackets = settings?.salaryBased?.[formData.financial.employmentType?.toLowerCase()] || settings?.salaryBased?.private || [];
+    let percentage = 0;
+
+    if (brackets.length > 0) {
+      for (const bracket of brackets) {
+        if (salaryToUse >= bracket.minSalary && salaryToUse <= bracket.maxSalary) {
+          percentage = bracket.percentage;
+          break;
+        }
+      }
+      if (!percentage && salaryToUse > brackets[brackets.length - 1].maxSalary) {
+        percentage = brackets[brackets.length - 1].percentage;
+      }
+    } else {
+      if (salaryToUse <= 4000) percentage = 0.6;
+      else if (salaryToUse <= 5000) percentage = 0.8;
+      else if (salaryToUse <= 6000) percentage = 1.0;
+      else if (salaryToUse <= 7000) percentage = 1.2;
+      else if (salaryToUse <= 8000) percentage = 1.4;
+      else if (salaryToUse <= 9000) percentage = 1.6;
+      else if (salaryToUse <= 10000) percentage = 1.8;
+      else percentage = 2.0;
+    }
+
+    const monthlyFee = salaryToUse * (percentage / 100);
+
+    return { tax, pension, netSalary, percentage, monthlyFee };
+  };
+
+  const calculated = (formData.membershipType === 'Salary-Based') ? calculateFinancials() : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -344,6 +415,31 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
                     </select>
                   </div>
                 </>
+              )}
+
+              {calculated && (
+                <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">{t('common.income_tax')}</label>
+                    <p className="text-sm font-mono font-bold text-gray-700 dark:text-gray-300">{calculated.tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ETB</p>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">{t('common.pension')}</label>
+                    <p className="text-sm font-mono font-bold text-gray-700 dark:text-gray-300">{calculated.pension.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ETB</p>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">{t('common.net_salary')}</label>
+                    <p className="text-sm font-mono font-bold text-primary">{calculated.netSalary.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ETB</p>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tier (%)</label>
+                    <p className="text-sm font-mono font-bold text-gray-700 dark:text-gray-300">{calculated.percentage}%</p>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-emerald-600 uppercase mb-1">{t('common.monthly_fee')}</label>
+                    <p className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">{calculated.monthlyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ETB</p>
+                  </div>
+                </div>
               )}
 
               {formData.membershipType === 'Non-Salary' && (

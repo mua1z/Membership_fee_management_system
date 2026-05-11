@@ -3,6 +3,7 @@ const Payment  = require('../models/Payment');
 const Receipt  = require('../models/Receipt');
 const Member   = require('../models/Member');
 const Contribution = require('../models/Contribution');
+const { getEthiopianYear, getEthiopianMonth } = require('../utils/ethiopianCalendar');
 
 // ─── Record a new payment ─────────────────────────────────────────────────────
 exports.createPayment = async (req, res) => {
@@ -17,6 +18,26 @@ exports.createPayment = async (req, res) => {
 
     if (!member) {
       return res.status(404).json({ success: false, message: 'Member not found.' });
+    }
+
+    // Check for duplicate payment for same period
+    const periodMonth = paymentData.period?.month || paymentData.periodMonth;
+    const periodYear  = paymentData.period?.year  || paymentData.periodYear;
+    
+    const existingPayment = await Payment.findOne({
+      where: {
+        memberDbId: member.id,
+        periodMonth,
+        periodYear,
+        status: 'Paid'
+      }
+    });
+
+    if (existingPayment) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Member ${member.fullName} has already paid for ${periodMonth}/${periodYear}.` 
+      });
     }
 
     const receiptId = `RCP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -72,6 +93,8 @@ exports.getPayments = async (req, res) => {
     const where = {};
     if (memberId) where.memberId = memberId;
     if (status)   where.status   = status;
+    if (req.query.month) where.periodMonth = Number(req.query.month);
+    if (req.query.year)  where.periodYear  = Number(req.query.year);
     
     // Build member-level where for join filtering
     const memberWhere = {};
@@ -125,9 +148,28 @@ exports.getPayments = async (req, res) => {
       success: true,
       data: payments,
       summary: {
-        totalMembers: totalMemberCount,
-        totalMonthlyRevenue: totalMonthlyRevenue || 0,
-        totalYearlyRevenue: totalYearlyRevenue || 0
+        totalMembers: await Payment.count({ 
+          distinct: true, 
+          col: 'memberDbId', 
+          where: { 
+            ...where, 
+            periodMonth: req.query.month || getEthiopianMonth(),
+            periodYear: req.query.year || getEthiopianYear()
+          } 
+        }),
+        totalMonthlyRevenue: await Payment.sum('amount', { 
+          where: { 
+            ...where, 
+            periodMonth: req.query.month || getEthiopianMonth(),
+            periodYear: req.query.year || getEthiopianYear()
+          } 
+        }) || 0,
+        totalYearlyRevenue: await Payment.sum('amount', { 
+          where: { 
+            ...where, 
+            periodYear: req.query.year || getEthiopianYear()
+          } 
+        }) || 0
       },
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) }
     });
@@ -186,6 +228,17 @@ exports.bulkPayments = async (req, res) => {
           continue;
         }
 
+        // Check for duplicate
+        const periodMonth = paymentData.period?.month || paymentData.periodMonth;
+        const periodYear  = paymentData.period?.year  || paymentData.periodYear;
+        const existing = await Payment.findOne({
+          where: { memberDbId: member.id, periodMonth, periodYear, status: 'Paid' }
+        });
+        if (existing) {
+          errors.push({ index: i, error: `Member ${member.fullName} already paid for ${periodMonth}/${periodYear}` });
+          continue;
+        }
+
         const receiptId = `RCP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
         const payment = await Payment.create({
@@ -241,8 +294,8 @@ exports.getMonthlyStatus = async (req, res) => {
   try {
     const { month, year, search, branch, cluster, sector, membershipType, paymentStatus, page = 1, limit = 50 } = req.query;
     
-    const targetMonth = month ? Number(month) : new Date().getMonth() + 1;
-    const targetYear  = year  ? Number(year)  : new Date().getFullYear();
+    const targetMonth = month ? Number(month) : getEthiopianMonth();
+    const targetYear  = year  ? Number(year)  : getEthiopianYear();
 
     const { Op } = require('sequelize');
     const { sequelize } = require('../config/db');
@@ -320,16 +373,39 @@ exports.getMonthlyStatus = async (req, res) => {
       };
     });
 
-    const totalMonthlyRevenue = await Member.sum('contributionMonthlyFee', { where: memberWhere });
-    const totalYearlyRevenue = await Member.sum('contributionAnnualFee', { where: memberWhere });
+    // Calculate summary based on recorded payments
+    const totalPaidMembers = await Payment.count({
+      distinct: true,
+      col: 'memberDbId',
+      where: { 
+        periodMonth: targetMonth, 
+        periodYear: targetYear,
+        ...(req.query.sectorId ? { memberDbId: { [Op.in]: sequelize.literal(`(SELECT id FROM members WHERE sectorUnitId = ${req.query.sectorId})`) } } : {})
+      }
+    });
+
+    const totalMonthlyRevenue = await Payment.sum('amount', { 
+      where: { 
+        periodMonth: targetMonth, 
+        periodYear: targetYear,
+        ...(req.query.sectorId ? { memberDbId: { [Op.in]: sequelize.literal(`(SELECT id FROM members WHERE sectorUnitId = ${req.query.sectorId})`) } } : {})
+      } 
+    }) || 0;
+
+    const totalYearlyRevenue = await Payment.sum('amount', { 
+      where: { 
+        periodYear: targetYear,
+        ...(req.query.sectorId ? { memberDbId: { [Op.in]: sequelize.literal(`(SELECT id FROM members WHERE sectorUnitId = ${req.query.sectorId})`) } } : {})
+      } 
+    }) || 0;
 
     res.json({
       success: true,
       data: mappedMembers,
       summary: {
-        totalMembers: total,
-        totalMonthlyRevenue: totalMonthlyRevenue || 0,
-        totalYearlyRevenue: totalYearlyRevenue || 0
+        totalMembers: totalPaidMembers,
+        totalMonthlyRevenue: totalMonthlyRevenue,
+        totalYearlyRevenue: totalYearlyRevenue
       },
       pagination: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / Number(limit)) },
       period: { month: targetMonth, year: targetYear }
