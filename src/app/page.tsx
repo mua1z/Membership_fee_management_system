@@ -1,359 +1,65 @@
-"use client";
+import Image from "next/image";
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { 
-  ArrowRight, UserPlus, Check, Users, 
-  Wallet, TrendingUp, Megaphone, ShieldCheck, Zap, FileSpreadsheet, 
-  Receipt, ChevronRight, Star, Quote, Network
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-
-const SectionHeader = ({ title, subtitle, light = false }: { title: string, subtitle: string, light?: boolean }) => (
-  <div className="text-center mb-20" style={{ perspective: 1000 }}>
-    <motion.div
-      initial={{ opacity: 0, rotateX: 45, y: 50, scale: 0.9 }}
-      whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-    >
-      <h2 className={`text-sm font-black uppercase tracking-[0.5em] mb-4 ${light ? 'text-[var(--gold)]' : 'text-[var(--primary)] dark:text-[var(--gold)]'}`}>
-        {subtitle}
-      </h2>
-      <h3 className={`text-4xl md:text-6xl font-black tracking-tighter ${light ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
-        {title}
-      </h3>
-      <div className={`w-24 h-1 mx-auto mt-8 rounded-full ${light ? 'bg-[var(--gold)]' : 'bg-[var(--primary)] dark:bg-[var(--gold)]'}`}></div>
-    </motion.div>
-  </div>
-);
-
-const FeatureCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: number }) => (
-  <div style={{ perspective: 1000 }}>
-    <motion.div
-      initial={{ opacity: 0, rotateX: -20, y: 50, z: -100 }}
-      whileInView={{ opacity: 1, rotateX: 0, y: 0, z: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, delay, type: "spring", bounce: 0.4 }}
-      whileHover={{ scale: 1.05, rotateY: 5, rotateX: -5, z: 30 }}
-      className="group bg-white dark:bg-ebony-card border border-slate-200 dark:border-white/5 p-10 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_rgba(37,99,235,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_40px_80px_rgba(255,215,0,0.1)] transition-all duration-300 relative overflow-hidden"
-      style={{ transformStyle: "preserve-3d" }}
-    >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 dark:bg-gold/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-[2] transition-transform duration-700 ease-out"></div>
-      <div className="relative z-10" style={{ transform: "translateZ(20px)" }}>
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 dark:bg-gold/10 flex items-center justify-center mb-8 group-hover:bg-primary dark:group-hover:bg-gold group-hover:text-white dark:group-hover:text-ebony transition-all duration-500">
-        <Icon size={28} className="text-primary dark:text-gold group-hover:text-white dark:group-hover:text-ebony transition-colors" />
-      </div>
-      <h4 className="text-xl font-black text-slate-900 dark:text-white mb-4 tracking-tight group-hover:text-primary dark:group-hover:text-gold transition-colors duration-300">{title}</h4>
-      <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-        {desc}
-      </p>
-    </div>
-    </motion.div>
-  </div>
-);
-
-export default function Landing() {
-  const router = useRouter();
-  const { t } = useTranslation();
-
+export default function Home() {
   return (
-    <div className="overflow-x-hidden bg-slate-50 dark:bg-ebony transition-colors duration-500">
-      
-      {/* ── 1. HERO SECTION ────────────────────────── */}
-      <section className="relative py-32 flex items-center justify-center overflow-hidden border-b border-slate-200 dark:border-white/5" style={{ perspective: 1000 }}>
-        {/* Background Image with Parallax effect */}
-        <motion.div 
-          className="absolute inset-0 z-0"
-          initial={{ scale: 1.2 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-        >
-          <img 
-            src="/luxury-hero.png" 
-            alt="Hero Background" 
-            className="w-full h-full object-cover scale-110"
-          />
-          <div className="absolute inset-0 bg-white/20 dark:bg-ebony/40"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50 dark:from-transparent dark:via-transparent dark:to-ebony"></div>
-        </motion.div>
-
-        <div className="max-w-5xl mx-auto px-8 w-full relative z-10 flex flex-col items-center text-center pt-20">
-          <div className="space-y-10 flex flex-col items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 100, rotateX: 30, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-              transition={{ duration: 1.2, type: "spring", bounce: 0.3 }}
-              className="flex flex-col items-center w-full"
-              style={{ transformStyle: "preserve-3d" }}
+    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={100}
+          height={20}
+          priority
+        />
+        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
+            To get started, edit the page.tsx file.
+          </h1>
+          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            Looking for a starting point or more instructions? Head over to{" "}
+            <a
+              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+              className="font-medium text-zinc-950 dark:text-zinc-50"
             >
-              <motion.h1 
-                className="text-5xl lg:text-[80px] font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter mb-10 drop-shadow-[0_10px_30px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_10px_30px_rgba(0,0,0,0.9)]" 
-                style={{ transform: "translateZ(50px)" }}
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.15, delayChildren: 0.5 }
-                  }
-                }}
-              >
-                <motion.span 
-                  className="text-black dark:text-gold drop-shadow-lg block mb-2"
-                  variants={{ hidden: { opacity: 0, y: 50, rotateX: 90 }, visible: { opacity: 1, y: 0, rotateX: 0, transition: { type: "spring", bounce: 0.6 } } }}
-                >
-                  {t('common.hero_title_line1')}
-                </motion.span>
-                <motion.span 
-                  className="block"
-                  variants={{ hidden: { opacity: 0, y: 50, rotateX: -90 }, visible: { opacity: 1, y: 0, rotateX: 0, transition: { type: "spring", bounce: 0.6 } } }}
-                >
-                  {t('common.hero_title_line2')}
-                </motion.span>
-              </motion.h1>
-              
-              <p className="text-xl text-slate-900 dark:text-slate-100 max-w-2xl leading-relaxed font-bold mb-12 drop-shadow-[0_2px_5px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] mx-auto">
-                {t('common.hero_desc_landing')}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center" style={{ transform: "translateZ(30px)" }}>
-                <motion.button 
-                  whileHover={{ scale: 1.05, rotateY: -10, z: 20 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push('/login')} 
-                  className="flex items-center justify-center gap-4 bg-[var(--primary)] dark:bg-[var(--gold)] text-white dark:text-ebony px-10 py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-[0_10px_40px_rgba(37,99,235,0.3)] dark:shadow-[0_0_50px_rgba(212,175,55,0.4)] transition-all duration-300 group"
-                >
-                  {t('common.hero_btn_register')}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.05, rotateY: 10, z: 20 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push('/login')} 
-                  className="flex items-center justify-center gap-4 bg-white/90 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-slate-900 dark:text-white px-10 py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-white dark:hover:bg-white/20 shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300"
-                >
-                  {t('common.hero_btn_login')}
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Floating Stats */}
-            <div className="grid grid-cols-3 gap-8 md:gap-16 pt-12 border-t border-slate-200 dark:border-white/10 w-full max-w-3xl mx-auto">
-              {[
-                { label: t('common.hero_stat_members'), value: '45,000+' },
-                { label: t('common.hero_stat_contributions'), value: '$2.4M' },
-                { label: t('common.hero_stat_sectors'), value: '120+' }
-              ].map((stat, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                >
-                  <p className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">{stat.value}</p>
-                  <p className="text-[9px] text-primary dark:text-gold font-bold uppercase tracking-widest">{stat.label}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+              Templates
+            </a>{" "}
+            or the{" "}
+            <a
+              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+              className="font-medium text-zinc-950 dark:text-zinc-50"
+            >
+              Learning
+            </a>{" "}
+            center.
+          </p>
         </div>
-        
-        {/* Scroll Indicator */}
-        <motion.div 
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-50"
-        >
-          <span className="text-[9px] text-slate-500 dark:text-white font-black uppercase tracking-[0.4em]">{t('common.hero_scroll')}</span>
-          <div className="w-[1px] h-12 bg-gradient-to-b from-slate-400 dark:from-white to-transparent"></div>
-        </motion.div>
-      </section>
-
-      {/* ── 2. ABOUT SECTION ────────────────────────── */}
-      <section id="about" className="py-40 bg-white dark:bg-ebony relative overflow-hidden transition-colors duration-500">
-        <div className="max-w-[1400px] mx-auto px-8 grid lg:grid-cols-2 gap-24 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative"
+        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+          <a
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <div className="absolute -inset-6 bg-primary/10 rounded-[3rem] rotate-3 translate-x-4"></div>
-            <img 
-              src="/luxury-about.png" 
-              alt="Leadership" 
-              className="relative z-10 w-full rounded-[2.5rem] shadow-2xl hover:scale-[1.02] transition-transform duration-700"
+            <Image
+              className="dark:invert"
+              src="/vercel.svg"
+              alt="Vercel logomark"
+              width={16}
+              height={16}
             />
-            <div className="absolute -bottom-10 -right-10 bg-primary dark:bg-gold p-12 rounded-[2.5rem] shadow-2xl z-20 hidden md:block">
-               <p className="text-white dark:text-ebony text-4xl font-black mb-2 tracking-tighter">15+</p>
-               <p className="text-white/80 dark:text-ebony/60 text-[10px] font-black uppercase tracking-widest">{t('common.about_years')}</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8"
+            Deploy Now
+          </a>
+          <a
+            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
+            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <h2 className="text-sm font-black text-primary dark:text-gold uppercase tracking-[0.5em]">{t('common.about_label')}</h2>
-            <h3 className="text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight">
-              {t('common.about_title')}
-            </h3>
-            <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-              {t('common.about_desc')}
-            </p>
-            
-            <ul className="space-y-6 pt-4">
-              {[
-                t('common.about_item_1'),
-                t('common.about_item_2'),
-                t('common.about_item_3'),
-                t('common.about_item_4')
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-4 group">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-gold/10 flex items-center justify-center group-hover:bg-primary dark:group-hover:bg-gold transition-colors">
-                    <Check size={14} className="text-primary dark:text-gold group-hover:text-white dark:group-hover:text-ebony" />
-                  </div>
-                  <span className="text-slate-900 dark:text-white font-bold tracking-tight">{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <button className="flex items-center gap-3 text-primary dark:text-gold font-black uppercase tracking-widest text-xs mt-10 hover:gap-5 transition-all">
-              {t('common.about_cta')} <ChevronRight size={18} />
-            </button>
-          </motion.div>
+            Documentation
+          </a>
         </div>
-      </section>
-
-      {/* ── 3. FEATURES SECTION ─────────────────────── */}
-      <section id="features" className="py-40 bg-slate-50 dark:bg-[#05070a] transition-colors duration-500">
-        <div className="max-w-[1400px] mx-auto px-8">
-          <SectionHeader 
-            subtitle={t('common.features_subtitle')} 
-            title={t('common.features_title')} 
-          />
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard icon={UserPlus} title={t('common.feat_reg_title')} desc={t('common.feat_reg_desc')} delay={0.1} />
-            <FeatureCard icon={Wallet} title={t('common.feat_pay_title')} desc={t('common.feat_pay_desc')} delay={0.2} />
-            <FeatureCard icon={TrendingUp} title={t('common.feat_analytics_title')} desc={t('common.feat_analytics_desc')} delay={0.3} />
-            <FeatureCard icon={FileSpreadsheet} title={t('common.feat_export_title')} desc={t('common.feat_export_desc')} delay={0.4} />
-            <FeatureCard icon={Megaphone} title={t('common.feat_announce_title')} desc={t('common.feat_announce_desc')} delay={0.5} />
-            <FeatureCard icon={ShieldCheck} title={t('common.feat_admin_title')} desc={t('common.feat_admin_desc')} delay={0.6} />
-            <FeatureCard icon={Network} title={t('common.feat_sector_title')} desc={t('common.feat_sector_desc')} delay={0.7} />
-            <FeatureCard icon={Receipt} title={t('common.feat_receipt_title')} desc={t('common.feat_receipt_desc')} delay={0.8} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. HOW IT WORKS ─────────────────────────── */}
-      <section className="py-40 bg-white dark:bg-ebony transition-colors duration-500 relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
-           <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 dark:bg-gold/5 -skew-x-12 translate-x-32"></div>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto px-8 relative z-10">
-          <SectionHeader subtitle={t('common.how_subtitle')} title={t('common.how_title')} />
-
-          <div className="grid md:grid-cols-5 gap-12 relative">
-            {/* Connector Line */}
-            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 dark:via-gold/20 to-transparent hidden md:block"></div>
-            
-            {[
-              { step: '01', title: t('common.how_step1_title'), desc: t('common.how_step1_desc') },
-              { step: '02', title: t('common.how_step2_title'), desc: t('common.how_step2_desc') },
-              { step: '03', title: t('common.how_step3_title'), desc: t('common.how_step3_desc') },
-              { step: '04', title: t('common.how_step4_title'), desc: t('common.how_step4_desc') },
-              { step: '05', title: t('common.how_step5_title'), desc: t('common.how_step5_desc') }
-            ].map((item, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="text-center relative z-10 group"
-              >
-                <div className="w-20 h-20 rounded-full bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 flex items-center justify-center mx-auto mb-8 group-hover:bg-primary dark:group-hover:bg-gold group-hover:border-primary dark:group-hover:border-gold group-hover:text-white dark:group-hover:text-ebony transition-all duration-500 shadow-lg dark:shadow-sm">
-                  <span className="text-2xl font-black text-slate-800 dark:text-white group-hover:text-white dark:group-hover:text-ebony">{item.step}</span>
-                </div>
-                <h4 className="text-xl font-black text-primary dark:text-gold mb-3 tracking-tight">{item.title}</h4>
-                <p className="text-slate-500 dark:text-white/70 text-sm font-medium">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. STATISTICS SECTION ───────────────────── */}
-      <section className="py-32 bg-slate-50 dark:bg-ebony-card relative overflow-hidden border-y border-slate-200 dark:border-white/5 transition-colors duration-500">
-        <div className="max-w-[1400px] mx-auto px-8 grid grid-cols-2 lg:grid-cols-4 gap-16 relative z-10">
-          {[
-            { label: t('common.stats_total_members'), value: '45.2K', suffix: '+' },
-            { label: t('common.stats_annual_growth'), value: '24', suffix: '%' },
-            { label: t('common.stats_registered_units'), value: '128', suffix: '' },
-            { label: t('common.stats_monthly_traffic'), value: '100K', suffix: '+' }
-          ].map((stat, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <h3 className="text-6xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
-                {stat.value}<span className="text-primary/60 dark:text-gold/60">{stat.suffix}</span>
-              </h3>
-              <p className="text-[10px] text-slate-500 dark:text-white/60 font-black uppercase tracking-[0.4em]">
-                {stat.label}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 9. CALL TO ACTION ───────────────────────── */}
-      <section className="py-40 relative bg-slate-50 dark:bg-ebony transition-colors duration-500">
-        <div className="max-w-[1400px] mx-auto px-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white dark:bg-ebony-card p-20 md:p-32 rounded-[4rem] relative overflow-hidden border border-slate-200 dark:border-white/5 shadow-2xl"
-          >
-            <div className="relative z-10 text-center space-y-12">
-               <h3 className="text-5xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                  {t('common.cta_title_line1')} <br /> {t('common.cta_title_line2')}
-               </h3>
-               <p className="text-xl text-slate-600 dark:text-white/70 max-w-2xl mx-auto font-medium">
-                  {t('common.cta_desc')}
-               </p>
-               <div className="flex flex-col sm:flex-row gap-8 justify-center">
-                  <button 
-                    onClick={() => router.push('/login')}
-                    className="px-12 py-6 bg-primary text-white font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-ebony transition-all shadow-xl"
-                  >
-                    {t('common.cta_btn_member')}
-                  </button>
-                  <button 
-                    onClick={() => router.push('/login')}
-                    className="px-12 py-6 bg-transparent border-2 border-primary text-primary dark:text-white font-black uppercase tracking-[0.2em] rounded-full hover:bg-primary hover:text-white transition-all"
-                  >
-                    {t('common.cta_btn_dashboard')}
-                  </button>
-               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
+      </main>
     </div>
   );
 }

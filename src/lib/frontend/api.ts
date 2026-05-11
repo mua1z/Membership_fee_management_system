@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const getBaseURL = () => {
-  // In Next.js, we can use relative path for API routes if they are on the same server
-  return '/api';
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return url.endsWith('/api') ? url : `${url}/api`;
 };
 
 const api = axios.create({
@@ -11,11 +11,9 @@ const api = axios.create({
 
 // Add token to requests
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
@@ -24,7 +22,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token')
       window.location.href = '/login'
     }

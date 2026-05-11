@@ -1,9 +1,7 @@
-"use client"
 import React, { useState, useEffect, useRef } from 'react';
-import api from '@/lib/frontend/api';
-import { X, Plus, Save, Loader2, Trash2, Table2, Users, AlertCircle } from 'lucide-react';
+import api from '../lib/api';
+import { X, Plus, Save, Loader2, Trash2, Table2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/context/AuthContext';
 
 interface FastEntryModalProps {
   onClose: () => void;

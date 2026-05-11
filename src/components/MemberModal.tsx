@@ -1,7 +1,6 @@
-"use client"
-import { useState, useEffect, useRef } from 'react'
-import api from '@/lib/frontend/api'
-import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import api from '../lib/api'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 interface Member {

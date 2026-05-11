@@ -1,8 +1,7 @@
-"use client"
-import { useState, useEffect, useRef } from 'react'
-import api from '@/lib/frontend/api'
+import { useState, useEffect } from 'react'
+import api from '../lib/api'
 import { useTranslation } from 'react-i18next'
-import { X, Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Search } from 'lucide-react'
+import { X, Upload, Download } from 'lucide-react'
 
 interface ImportModalProps {
   onClose: () => void
