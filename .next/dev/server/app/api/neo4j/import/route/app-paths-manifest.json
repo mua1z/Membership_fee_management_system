@@ -1,0 +1,3 @@
+{
+  "/api/neo4j/import/route": "app/api/neo4j/import/route.js"
+}

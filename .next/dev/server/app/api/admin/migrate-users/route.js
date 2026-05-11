@@ -1,0 +1,12 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/admin/migrate-users/route.js")
+R.c("server/chunks/MCMS_MCMS_src_app_api_admin_migrate-users_route_ts_0bgfgy~._.js")
+R.c("server/chunks/012s_next_0kniryt._.js")
+R.c("server/chunks/012s_@clerk_backend_dist_0wsejp8._.js")
+R.c("server/chunks/012s_mysql2_054modz._.js")
+R.c("server/chunks/012s_iconv-lite_0uoldw-._.js")
+R.c("server/chunks/012s_aws-ssl-profiles_lib_0g1va3u._.js")
+R.c("server/chunks/012s_09hm.~d._.js")
+R.c("server/chunks/[root-of-the-server]__0~39liy._.js")
+R.c("server/chunks/12gk_MCMS__next-internal_server_app_api_admin_migrate-users_route_actions_12ipw0g.js")
+R.m("[project]/MCMS/MCMS/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/MCMS/MCMS/src/app/api/admin/migrate-users/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/MCMS/MCMS/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/MCMS/MCMS/src/app/api/admin/migrate-users/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

@@ -1,0 +1,3 @@
+{
+  "/api/admin/migrate-users/route": "app/api/admin/migrate-users/route.js"
+}
