@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
       try {
         console.log(`Migrating user: ${localUser.email}`);
         
-        // Generate a unique dummy phone number (e.g. +1 followed by padded ID)
-        const dummyPhone = `+1${String(localUser.id).padStart(10, '0')}`;
+        // Generate a unique dummy phone number (valid US format)
+        const dummyPhone = `+1555${String(localUser.id).padStart(7, '0')}`;
 
         // Create user in Clerk
         const clerkUser = await clerk.users.createUser({
