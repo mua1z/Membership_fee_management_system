@@ -321,7 +321,7 @@ export default function UserManagement() {
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-sm font-bold shrink-0 overflow-hidden">
                         {u.profilePic ? (
-                          <img src={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')}${u.profilePic}`} alt="" className="w-full h-full object-cover" />
+                          <img src={`${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')}${u.profilePic}`} alt="" className="w-full h-full object-cover" />
                         ) : (
                           u.fullName.charAt(0).toUpperCase()
                         )}

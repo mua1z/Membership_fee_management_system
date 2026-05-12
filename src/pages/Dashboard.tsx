@@ -178,7 +178,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="_id.month" tickFormatter={(m) => new Date(2026, m - 1, 1).toLocaleString('default', { month: 'short' })} />
               <YAxis />
-              <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+              <Tooltip formatter={(value: any) => value ? `ETB ${value.toLocaleString()}` : ''} />
               <Legend />
               <Line type="monotone" dataKey="revenue" stroke="#0ea5e9" strokeWidth={2} name="Revenue" />
             </LineChart>
@@ -319,7 +319,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="_id" tick={{ fontSize: 11 }} />
                 <YAxis />
-                <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+<Tooltip formatter={(value) => value ? `ETB ${value.toLocaleString()}` : ''} />
                 <Legend />
                 <Bar dataKey="totalRevenue" fill="#22c55e" name="Revenue" radius={[4, 4, 0, 0]} />
               </BarChart>

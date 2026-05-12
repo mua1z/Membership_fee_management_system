@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const getBaseURL = () => {
-  const url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
   return url.endsWith('/api') ? url : `${url}/api`;
 };
 

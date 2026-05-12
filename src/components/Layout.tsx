@@ -45,12 +45,12 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
     { icon: Settings,        label: t('common.settings'),  path: '/settings',  roles: ['admin'] },
   ].filter(item => item.roles.includes(user?.role || ''))
 
-  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
   const avatarUrl = user?.profilePic
     ? (user.profilePic.startsWith('http') ? user.profilePic : `${baseUrl}${user.profilePic}`)
     : null
 
-  const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
+  const isActive = (path: string) => !!pathname && (pathname === path || pathname.startsWith(path + '/'))
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans ${currentLang.startsWith('am') ? 'font-amharic' : ''}`}>
@@ -188,7 +188,7 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
         {navItems.map((item) => (
           <Link
             key={item.path}
-            to={item.path}
+            href={item.path}
             className={`flex flex-col items-center gap-1 transition-all duration-300 min-w-[60px] ${
               isActive(item.path) ? 'text-[var(--gold)]' : 'text-slate-400'
             }`}

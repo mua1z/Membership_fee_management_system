@@ -199,7 +199,7 @@ export default function Reports() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="_id" tickFormatter={(v) => t(v)} />
                       <YAxis />
-                      <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+                      <Tooltip formatter={(value: any) => value ? `ETB ${value.toLocaleString()}` : ''} />
                       <Legend formatter={(v) => t(v)} />
                       <Bar dataKey="totalRevenue" fill="#0ea5e9" name={t('common.total_revenue')} />
                     </BarChart>
@@ -213,7 +213,7 @@ export default function Reports() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="_id" tick={{ fontSize: 11 }} tickFormatter={(v) => t(v)} />
                       <YAxis />
-                      <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+                      <Tooltip formatter={(value: any) => value ? `ETB ${value.toLocaleString()}` : ''} />
                       <Legend formatter={(v) => t(v)} />
                       <Bar dataKey="totalRevenue" fill="#22c55e" name={t('common.total_revenue')} />
                     </BarChart>
@@ -248,7 +248,7 @@ export default function Reports() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="_id" tickFormatter={(m) => t(`common.${['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][m-1]}`)} />
                     <YAxis />
-                    <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => value ? `ETB ${value.toLocaleString()}` : ''} />
                     <Legend formatter={(v) => t(v)} />
                     <Bar dataKey="monthlyRevenue" fill="#0ea5e9" name={t('common.total_revenue')} />
                   </BarChart>
@@ -295,7 +295,7 @@ export default function Reports() {
                       <Cell fill="#0ea5e9" />
                       <Cell fill="#22c55e" />
                     </Pie>
-                    <Tooltip formatter={(value: number) => `ETB ${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => value ? `ETB ${value.toLocaleString()}` : ''} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

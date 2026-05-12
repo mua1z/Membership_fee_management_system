@@ -60,7 +60,7 @@ export default function Profile() {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       const newPic = res.data.data.profilePic
-      const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
+      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
       setPreview(`${baseUrl}${newPic}`)
       updateUser({ profilePic: newPic })
       setAvatarFile(null)
@@ -114,7 +114,7 @@ export default function Profile() {
     expert: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
   }
 
-  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '')
   const avatarUrl = preview
     ? (preview.startsWith('blob:') || preview.startsWith('http') ? preview : `${baseUrl}${preview}`)
     : null
