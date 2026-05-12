@@ -1,12 +1,22 @@
-// config/db.js - MySQL / Sequelize Configuration
+// config/db.js - MySQL / Sequelize Configuration (supports TiDB Cloud)
 const { Sequelize } = require('sequelize');
 
 const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+// Enable SSL when DB_SSL=true or NODE_ENV=production (required for TiDB Cloud)
+const useSSL = process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production';
+const dialectOptions = useSSL ? {
+  ssl: {
+    require: true,
+    rejectUnauthorized: true
+  }
+} : {};
 
 const sequelize = dbUrl 
   ? new Sequelize(dbUrl, {
       dialect: 'mysql',
       logging: false,
+      dialectOptions,
       pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
       define: { charset: 'utf8mb4', collate: 'utf8mb4_unicode_ci' }
     })
@@ -19,6 +29,7 @@ const sequelize = dbUrl
         port: Number(process.env.DB_PORT) || 3306,
         dialect: 'mysql',
         logging: false,
+        dialectOptions,
         pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
         define: { charset: 'utf8mb4', collate: 'utf8mb4_unicode_ci' }
       }
