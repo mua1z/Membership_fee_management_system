@@ -1,0 +1,5 @@
+__turbopack_load_page_chunks__("/Security", [
+  "static/chunks/03u~a74sdz-6r.js",
+  "static/chunks/0xivi2s.8zz9e.js",
+  "static/chunks/turbopack-0a3u5egqeshto.js"
+])

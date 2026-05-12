@@ -1,6 +1,6 @@
 import React from 'react';
 import { Wallet, Users, Shield, ArrowRight, BarChart3, Database, Lock, Check, Activity } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
@@ -24,7 +24,7 @@ const SectionHeader = ({ title, subtitle, light = false }: { title: string, subt
 );
 
 export default function Platform() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { t } = useTranslation();
 
   return (
@@ -217,13 +217,13 @@ export default function Platform() {
                </p>
                <div className="flex flex-col sm:flex-row gap-8 justify-center">
                   <button 
-                    onClick={() => navigate('/login')}
+                    onClick={() => router.push('/login')}
                     className="px-12 py-6 bg-primary text-white font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-ebony transition-all shadow-xl"
                   >
                     Become a Member
                   </button>
                   <button 
-                    onClick={() => navigate('/login')}
+                    onClick={() => router.push('/login')}
                     className="px-12 py-6 bg-transparent border-2 border-primary text-primary font-black uppercase tracking-[0.2em] rounded-full hover:bg-primary hover:text-white transition-all"
                   >
                     Access Dashboard

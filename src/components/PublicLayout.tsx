@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Mail, Phone, Languages, Shield, Globe, Sun, Moon } from 'lucide-react';
 
-export default function PublicLayout() {
+export default function PublicLayout({ children }: { children?: React.ReactNode }) {
   const { t, i18n } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const currentLang = i18n.language || 'am';
   const toggleLanguage = () => {
@@ -65,7 +66,7 @@ export default function PublicLayout() {
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-8 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-4 group">
+          <Link href="/" className="flex items-center gap-4 group">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 dark:bg-gold/20 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-700"></div>
               <img src="/pp-logo.png" alt="Logo" className="w-12 h-12 object-contain relative z-10 transition-transform duration-500 group-hover:scale-110" />
@@ -82,14 +83,14 @@ export default function PublicLayout() {
                 key={item.name} 
                 href={item.path} 
                 className={`text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-300 relative group ${
-                  location.pathname === item.path || location.hash === item.path.split('#')[1] 
+                  pathname === item.path || location.hash === item.path.split('#')[1] 
                   ? 'text-primary dark:text-white' 
                   : 'text-slate-500 dark:text-white/70 hover:text-primary dark:hover:text-white'
                 }`}
               >
                 {item.name}
                 <span className={`absolute -bottom-2 left-0 h-[2px] bg-primary dark:bg-white transition-all duration-500 ${
-                  location.pathname === item.path ? 'w-full' : 'w-0 group-hover:w-full'
+                  pathname === item.path ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}></span>
               </a>
             ))}
@@ -113,7 +114,7 @@ export default function PublicLayout() {
             </button>
             
             <button 
-              onClick={() => navigate('/login')} 
+              onClick={() => router.push('/login')} 
               className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-[11px] uppercase tracking-widest rounded-full hover:bg-gold dark:hover:bg-gold hover:text-slate-900 dark:hover:text-slate-900 transition-all duration-500 shadow-[0_10px_20px_rgba(15,23,42,0.2)] dark:shadow-[0_10px_20px_rgba(255,255,255,0.15)]"
             >
               {t('common.login')}
@@ -142,7 +143,7 @@ export default function PublicLayout() {
               </a>
             ))}
             <button 
-              onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+              onClick={() => { router.push('/login'); setMobileMenuOpen(false); }}
               className="px-12 py-4 bg-primary dark:bg-gold text-white dark:text-ebony font-black uppercase tracking-widest rounded-full"
             >
               {t('common.login')}
@@ -153,7 +154,7 @@ export default function PublicLayout() {
 
       {/* Main Content Area */}
       <main className="flex-grow pt-[100px]">
-         <Outlet />
+         {children}
       </main>
 
       {/* ── Footer ────────────────────────── */}

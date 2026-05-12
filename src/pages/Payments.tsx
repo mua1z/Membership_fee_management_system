@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import api from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Save, Check, Filter, Download, Loader2, ChevronLeft, ChevronRight, FileText, ArrowLeft, Trash2, Users, Wallet, Banknote } from 'lucide-react'
@@ -44,7 +44,7 @@ interface MemberPaymentStatus {
 }
 
 export default function Payments() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user } = useAuth()
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'monthly' | 'history'>('monthly')
@@ -525,7 +525,7 @@ export default function Payments() {
         
         <div className="flex flex-wrap items-center justify-end gap-2 w-full md:w-2/3">
           {activeTab === 'monthly' && (
-            <button onClick={() => navigate(-1)} className="btn btn-secondary flex items-center gap-2" title="Go back">
+            <button onClick={() => router.back()} className="btn btn-secondary flex items-center gap-2" title="Go back">
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">{t('common.back')}</span>
             </button>

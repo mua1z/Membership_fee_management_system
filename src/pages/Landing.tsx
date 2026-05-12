@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { 
@@ -54,7 +54,7 @@ const FeatureCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: str
 );
 
 export default function Landing() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { t } = useTranslation();
 
   return (
@@ -122,7 +122,7 @@ export default function Landing() {
                 <motion.button 
                   whileHover={{ scale: 1.05, rotateY: -10, z: 20 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/login')} 
+                  onClick={() => router.push('/login')} 
                   className="flex items-center justify-center gap-4 bg-primary dark:bg-gold text-white dark:text-ebony px-10 py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-[0_10px_40px_rgba(37,99,235,0.3)] dark:shadow-[0_0_50px_rgba(212,175,55,0.4)] transition-all duration-300 group"
                 >
                   {t('common.hero_btn_register')}
@@ -131,7 +131,7 @@ export default function Landing() {
                 <motion.button 
                   whileHover={{ scale: 1.05, rotateY: 10, z: 20 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/login')} 
+                  onClick={() => router.push('/login')} 
                   className="flex items-center justify-center gap-4 bg-white/90 dark:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-slate-900 dark:text-white px-10 py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-white dark:hover:bg-white/20 shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300"
                 >
                   {t('common.hero_btn_login')}
@@ -472,13 +472,13 @@ export default function Landing() {
                </p>
                <div className="flex flex-col sm:flex-row gap-8 justify-center">
                   <button 
-                    onClick={() => navigate('/login')}
+                    onClick={() => router.push('/login')}
                     className="px-12 py-6 bg-primary text-white font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 hover:bg-ebony transition-all shadow-xl"
                   >
                     {t('common.cta_btn_member')}
                   </button>
                   <button 
-                    onClick={() => navigate('/login')}
+                    onClick={() => router.push('/login')}
                     className="px-12 py-6 bg-transparent border-2 border-primary text-primary dark:text-white font-black uppercase tracking-[0.2em] rounded-full hover:bg-primary hover:text-white transition-all"
                   >
                     {t('common.cta_btn_dashboard')}

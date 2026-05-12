@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import {
@@ -8,10 +9,10 @@ import {
 } from 'lucide-react'
 import PageLoader from './PageLoader'
 
-export default function Layout() {
+export default function Layout({ children }: { children?: React.ReactNode }) {
   const { user, logout } = useAuth()
   const { t, i18n } = useTranslation()
-  const location = useLocation()
+  const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -49,7 +50,7 @@ export default function Layout() {
     ? (user.profilePic.startsWith('http') ? user.profilePic : `${baseUrl}${user.profilePic}`)
     : null
 
-  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans ${currentLang.startsWith('am') ? 'font-amharic' : ''}`}>
@@ -87,7 +88,7 @@ export default function Layout() {
           {navItems.map((item) => (
             <Link
               key={item.path}
-              to={item.path}
+              href={item.path}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-300 group ${
                 isActive(item.path)
                   ? 'bg-gradient-to-r from-[var(--gold)] to-[var(--gold-dim)] text-white shadow-lg shadow-[var(--gold)]/20'
@@ -106,7 +107,7 @@ export default function Layout() {
         {/* Sidebar Footer: User Profile */}
         <div className="p-3 border-t border-white/5 bg-black/20">
           <Link
-            to="/profile"
+            href="/profile"
             className={`flex items-center gap-2.5 p-2.5 rounded-lg transition-all duration-300 ${
               isActive('/profile')
                 ? 'bg-white/10 ring-1 ring-white/20'
@@ -177,7 +178,7 @@ export default function Layout() {
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-6">
           <div className="max-w-7xl mx-auto">
-            <Outlet />
+            {children}
           </div>
         </main>
       </div>
@@ -196,15 +197,15 @@ export default function Layout() {
             <span className="text-[8px] font-black uppercase tracking-[0.1em]">{item.label}</span>
           </Link>
         ))}
-        <Link
-          to="/profile"
-          className={`flex flex-col items-center gap-1 transition-all duration-300 min-w-[60px] ${
-            isActive('/profile') ? 'text-[var(--gold)]' : 'text-slate-400'
-          }`}
-        >
-          <UserCircle className="w-4 h-4" />
-          <span className="text-[8px] font-black uppercase tracking-[0.1em]">{t('common.profile')}</span>
-        </Link>
+          <Link
+            href="/profile"
+            className={`flex flex-col items-center gap-1 transition-all duration-300 min-w-[60px] ${
+              isActive('/profile') ? 'text-[var(--gold)]' : 'text-slate-400'
+            }`}
+          >
+            <UserCircle className="w-4 h-4" />
+            <span className="text-[8px] font-black uppercase tracking-[0.1em]">{t('common.profile')}</span>
+          </Link>
       </nav>
     </div>
   )

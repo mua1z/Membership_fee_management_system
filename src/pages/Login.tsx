@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
@@ -51,7 +51,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 
-  const navigate = useNavigate()
+  const router = useRouter()
   const { login } = useAuth()
 
   const currentLang = i18n.language || 'am'
@@ -67,7 +67,7 @@ export default function Login() {
     setError('')
     try {
       await login(email, password)
-      navigate('/dashboard')
+      router.push('/dashboard')
     } catch (err: any) {
       console.error('Login error:', err)
       setError(err.response?.data?.message || t('common.error'))
@@ -250,7 +250,7 @@ export default function Login() {
                 
                 <button 
                   type="button"
-                  onClick={() => navigate('/')}
+                  onClick={() => router.push('/')}
                   className="text-[9px] font-black text-slate-500 hover:text-slate-800 dark:hover:text-white uppercase tracking-[0.3em] transition-colors mt-2"
                 >
                   {t('common.return_to_homepage')}
