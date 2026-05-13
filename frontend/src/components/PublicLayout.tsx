@@ -18,13 +18,13 @@ export default function PublicLayout() {
   };
 
   useEffect(() => {
-    // Check initial dark mode state
-    if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-      document.documentElement.classList.remove('dark');
-      setIsDarkMode(false);
-    } else {
+    // Default to light mode unless explicitly set to dark
+    if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark');
       setIsDarkMode(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
     }
 
     const handleScroll = () => setScrolled(window.scrollY > 10);

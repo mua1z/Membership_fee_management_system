@@ -122,8 +122,14 @@ if (process.env.NODE_ENV === 'production') {
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Prosperity Party Membership Backend Running', timestamp: new Date() });
+  res.json({ 
+    status: 'OK', 
+    message: 'Prosperity Party Membership Backend Running', 
+    timestamp: new Date(),
+    dbHost: process.env.DB_HOST || 'localhost'
+  });
 });
+
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
