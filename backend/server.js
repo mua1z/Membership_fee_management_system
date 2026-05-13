@@ -126,9 +126,11 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     message: 'Prosperity Party Membership Backend Running', 
     timestamp: new Date(),
-    dbHost: process.env.DB_HOST || 'localhost'
+    dbHost: process.env.DB_HOST || 'localhost',
+    dbUserPrefix: (process.env.DB_USER || process.env.DB_USERNAME || 'root').split('.')[0]
   });
 });
+
 
 
 // Error Handling Middleware
