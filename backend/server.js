@@ -84,8 +84,11 @@ app.use('/api',               require('./routes/sectorRoutes'));
 
 // ── Serve Frontend (Production) ──────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
-  const frontendDistPath = path.join(__dirname, '../frontend/dist');
+  const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+  console.log(`Checking for frontend at: ${frontendDistPath}`);
   if (fs.existsSync(frontendDistPath)) {
+    console.log('✅ Frontend dist found! Serving static files.');
+
     app.use(express.static(frontendDistPath));
     
     // Catch-all route for SPA (React Router)
