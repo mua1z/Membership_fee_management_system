@@ -82,6 +82,24 @@ app.use('/api/settings',      require('./routes/settingRoutes'));
 app.use('/api/backup',        require('./routes/backupRoutes'));
 app.use('/api',               require('./routes/sectorRoutes'));
 
+// ── Serve Frontend (Production) ──────────────────────────────────────────────
+if (process.env.NODE_ENV === 'production') {
+  const frontendDistPath = path.join(__dirname, '../frontend/dist');
+  if (fs.existsSync(frontendDistPath)) {
+    app.use(express.static(frontendDistPath));
+    
+    // Catch-all route for SPA (React Router)
+    app.get('*', (req, res, next) => {
+      // Don't intercept API or upload requests
+      if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return next();
+      }
+      res.sendFile(path.join(frontendDistPath, 'index.html'));
+    });
+
+  }
+}
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Prosperity Party Membership Backend Running', timestamp: new Date() });
