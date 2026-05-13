@@ -84,11 +84,23 @@ app.use('/api',               require('./routes/sectorRoutes'));
 
 // ── Serve Frontend (Production) ──────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
-  const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
-  console.log(`Checking for frontend at: ${frontendDistPath}`);
-  if (fs.existsSync(frontendDistPath)) {
-    console.log('✅ Frontend dist found! Serving static files.');
+  const possiblePaths = [
+    path.join(__dirname, '..', 'frontend', 'dist'),
+    path.join(process.cwd(), 'frontend', 'dist'),
+    path.join(__dirname, 'frontend', 'dist')
+  ];
+  
+  let frontendDistPath = null;
+  for (const p of possiblePaths) {
+    console.log(`Checking for frontend at: ${p}`);
+    if (fs.existsSync(p)) {
+      frontendDistPath = p;
+      break;
+    }
+  }
 
+  if (frontendDistPath) {
+    console.log('✅ Frontend dist found! Serving static files.');
     app.use(express.static(frontendDistPath));
     
     // Catch-all route for SPA (React Router)
@@ -99,9 +111,11 @@ if (process.env.NODE_ENV === 'production') {
       }
       res.sendFile(path.join(frontendDistPath, 'index.html'));
     });
-
+  } else {
+    console.warn('⚠️ Frontend dist NOT found in any possible locations!');
   }
 }
+
 
 // Health Check
 app.get('/api/health', (req, res) => {
