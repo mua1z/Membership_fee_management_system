@@ -44,7 +44,7 @@ const Member = sequelize.define('Member', {
 
   // ── Classification ──────────────────────────────────────────────────────────
   membershipType: {
-    type: DataTypes.ENUM('Salary-Based', 'Non-Salary', 'Student', 'Business', 'Investor', 'Special', 'Wing'),
+    type: DataTypes.ENUM('Salary-Based Members', 'Non-Salary Members', 'Student Members', 'Business Members', 'Investor Members', 'Special Members', 'Wing Members'),
     allowNull: false
   },
   subType: { type: DataTypes.STRING(100), allowNull: true },

@@ -69,7 +69,7 @@ const sampleMembers = [
     branch: 'Kebele 01',
     cluster: 'Urban',
     sector: 'Kebele',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 15000, employmentType: 'Government', currency: 'ETB', allowances: 0 }
   },
   {
@@ -82,7 +82,7 @@ const sampleMembers = [
     branch: 'Kebele 02',
     cluster: 'Urban',
     sector: 'Kebele',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 25000, employmentType: 'Private', currency: 'ETB', allowances: 0 }
   },
   
@@ -97,7 +97,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Government Office',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 45000, employmentType: 'Government', currency: 'ETB', allowances: 5000 }
   },
   
@@ -112,7 +112,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Health Facility',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 35000, employmentType: 'Government', currency: 'ETB', allowances: 3000 }
   },
   
@@ -127,7 +127,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Education Institution',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 28000, employmentType: 'Government', currency: 'ETB', allowances: 2000 }
   },
   
@@ -142,7 +142,7 @@ const sampleMembers = [
     branch: 'Kebele 03',
     cluster: 'Urban',
     sector: 'Private Company',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Retail', businessName: 'Mohammed Trading', employees: 10, income: 150000 }
   },
   
@@ -157,7 +157,7 @@ const sampleMembers = [
     branch: 'Kebele 05',
     cluster: 'Urban',
     sector: 'NGO',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 50000, employmentType: 'NGO', currency: 'ETB', allowances: 0 }
   },
   
@@ -172,7 +172,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Bank',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 32000, employmentType: 'Private', currency: 'ETB', allowances: 4000 }
   },
   
@@ -187,7 +187,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Embassy',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 5000, employmentType: 'Embassy', currency: 'USD', allowances: 0 }
   },
   
@@ -202,7 +202,7 @@ const sampleMembers = [
     branch: 'Kebele 07',
     cluster: 'Urban',
     sector: 'Micro Enterprise',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Service', businessName: 'Meron Cafe', employees: 3, income: 40000 }
   },
   
@@ -217,7 +217,7 @@ const sampleMembers = [
     branch: 'Kebele 06',
     cluster: 'Urban',
     sector: 'Small Business',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Retail', businessName: 'Kidus Shop', employees: 15, income: 200000 }
   },
   
@@ -232,7 +232,7 @@ const sampleMembers = [
     branch: 'Kebele 08',
     cluster: 'Urban',
     sector: 'Medium Business',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Manufacturing', businessName: 'Nahum Factory', employees: 50, income: 500000 }
   },
   
@@ -247,7 +247,7 @@ const sampleMembers = [
     branch: 'Kebele 09',
     cluster: 'Urban',
     sector: 'Market',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Informal', estimatedIncome: 20000 }
   },
   
@@ -262,7 +262,7 @@ const sampleMembers = [
     branch: 'Kebele 10',
     cluster: 'Urban',
     sector: 'Factory',
-    membershipType: 'Investor',
+    membershipType: 'Investor Members',
     financial: { capital: 15000000, investmentType: 'Manufacturing' }
   },
   
@@ -278,7 +278,7 @@ const sampleMembers = [
     branch: 'Kebele 01',
     cluster: 'Rural',
     sector: 'Woreda',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 8000, employmentType: 'Government', currency: 'ETB', allowances: 1000 }
   },
   
@@ -293,7 +293,7 @@ const sampleMembers = [
     branch: 'Kebele 04',
     cluster: 'Rural',
     sector: 'Farming',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Farmer', estimatedIncome: 30000 }
   },
   
@@ -308,7 +308,7 @@ const sampleMembers = [
     branch: 'Kebele 06',
     cluster: 'Rural',
     sector: 'Pastoral',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Pastoralist', estimatedIncome: 25000 }
   },
   
@@ -323,7 +323,7 @@ const sampleMembers = [
     branch: 'Kebele 02',
     cluster: 'Rural',
     sector: 'Agro Activity',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Agro', businessName: 'Daba Farm', employees: 8, income: 120000 }
   },
   
@@ -338,7 +338,7 @@ const sampleMembers = [
     branch: 'Kebele 03',
     cluster: 'Rural',
     sector: 'Cooperative',
-    membershipType: 'Business',
+    membershipType: 'Business Members',
     financial: { businessType: 'Cooperative', businessName: 'Almaz Coop', employees: 25, income: 300000 }
   },
   
@@ -353,7 +353,7 @@ const sampleMembers = [
     branch: 'Kebele 05',
     cluster: 'Rural',
     sector: 'Local Market',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Informal', estimatedIncome: 15000 }
   },
   
@@ -368,7 +368,7 @@ const sampleMembers = [
     branch: 'Kebele 07',
     cluster: 'Rural',
     sector: 'Labor',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Labor', estimatedIncome: 10000 }
   },
   
@@ -383,7 +383,7 @@ const sampleMembers = [
     branch: 'Kebele 08',
     cluster: 'Rural',
     sector: 'Informal Work',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Informal', estimatedIncome: 12000 }
   },
   
@@ -398,7 +398,7 @@ const sampleMembers = [
     branch: 'Kebele 09',
     cluster: 'Rural',
     sector: 'Self Employed',
-    membershipType: 'Non-Salary',
+    membershipType: 'Non-Salary Members',
     financial: { occupationType: 'Informal', estimatedIncome: 18000 }
   },
   
@@ -413,7 +413,7 @@ const sampleMembers = [
     branch: 'Kebele 10',
     cluster: 'Rural',
     sector: 'Rural School',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 12000, employmentType: 'Government', currency: 'ETB', allowances: 1500 }
   },
   
@@ -428,7 +428,7 @@ const sampleMembers = [
     branch: 'Kebele 01',
     cluster: 'Rural',
     sector: 'Health Post',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     financial: { salary: 10000, employmentType: 'Government', currency: 'ETB', allowances: 1000 }
   },
   
@@ -443,7 +443,7 @@ const sampleMembers = [
     branch: 'Women Wing',
     cluster: 'N/A',
     sector: '',
-    membershipType: 'Wing',
+    membershipType: 'Wing Members',
     wing: { wingType: 'Women' }
   },
   {
@@ -456,7 +456,7 @@ const sampleMembers = [
     branch: 'Youth Wing',
     cluster: 'N/A',
     sector: '',
-    membershipType: 'Student'
+    membershipType: 'Student Members'
   },
   
   // Investor (Large)
@@ -470,7 +470,7 @@ const sampleMembers = [
     branch: 'Kebele 03',
     cluster: 'Urban',
     sector: 'Private Company',
-    membershipType: 'Investor',
+    membershipType: 'Investor Members',
     financial: { capital: 8000000, investmentType: 'Manufacturing' }
   },
   
@@ -485,7 +485,7 @@ const sampleMembers = [
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: 'Education Institution',
-    membershipType: 'Student'
+    membershipType: 'Student Members'
   }
 ];
 

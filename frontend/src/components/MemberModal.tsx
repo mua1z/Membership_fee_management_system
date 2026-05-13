@@ -73,7 +73,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
     branch: 'Dire Dawa Main',
     cluster: 'Urban',
     sector: '',
-    membershipType: 'Salary-Based',
+    membershipType: 'Salary-Based Members',
     paymentDay: 1,
     financial: {
       salary: 0,
@@ -144,13 +144,13 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
       const cat = categories.find(c => String(c.id) === selectedCategoryId)
       if (cat) {
         const name = cat.name.toLowerCase()
-        let type = 'Non-Salary'
-        if (name.includes('wing')) type = 'Wing'
-        else if (name.includes('employee member') || name === 'employee') type = 'Salary-Based'
-        else if (name.includes('enterprise')) type = 'Business'
-        else if (name.includes('student')) type = 'Student'
-        else if (name.includes('investor')) type = 'Investor'
-        else if (name.includes('resident') || name.includes('farmer')) type = 'Non-Salary'
+        let type = 'Non-Salary Members'
+        if (name.includes('wing')) type = 'Wing Members'
+        else if (name.includes('employee member') || name === 'employee') type = 'Salary-Based Members'
+        else if (name.includes('enterprise')) type = 'Business Members'
+        else if (name.includes('student')) type = 'Student Members'
+        else if (name.includes('investor')) type = 'Investor Members'
+        else if (name.includes('resident') || name.includes('farmer')) type = 'Non-Salary Members'
         
         setFormData(prev => ({ 
           ...prev, 
@@ -237,7 +237,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
     return { tax, pension, netSalary, percentage, monthlyFee };
   };
 
-  const calculated = (formData.membershipType === 'Salary-Based') ? calculateFinancials() : null;
+  const calculated = (formData.membershipType === 'Salary-Based Members') ? calculateFinancials() : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -391,7 +391,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('common.financial_info')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(formData.membershipType === 'Salary-Based') && (
+              {(formData.membershipType === 'Salary-Based Members') && (
                 <>
                   <div>
                     <label className="block text-sm font-medium mb-1">{t('common.salary')}</label>
@@ -442,7 +442,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
                 </div>
               )}
 
-              {formData.membershipType === 'Non-Salary' && (
+              {formData.membershipType === 'Non-Salary Members' && (
                 <>
                   <div>
                     <label className="block text-sm font-medium mb-1">{t('common.occupation')}</label>
@@ -469,7 +469,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
                 </>
               )}
 
-              {formData.membershipType === 'Business' && (
+              {formData.membershipType === 'Business Members' && (
                 <>
                   <div>
                     <label className="block text-sm font-medium mb-1">{t('common.business_type')} *</label>
@@ -488,7 +488,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
                 </>
               )}
 
-              {formData.membershipType === 'Wing' && (() => {
+              {formData.membershipType === 'Wing Members' && (() => {
                 const cat = categories.find(c => String(c.id) === selectedCategoryId);
                 const isEmployeeWing = cat?.name.toLowerCase().includes('employee');
                 
@@ -527,7 +527,7 @@ export default function MemberModal({ member, onClose, onSuccess }: MemberModalP
                   </>
                 );
               })()}
-              {formData.membershipType === 'Investor' && (
+              {formData.membershipType === 'Investor Members' && (
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('common.capital')} (ETB) *</label>
                   <input

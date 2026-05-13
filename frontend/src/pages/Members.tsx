@@ -369,7 +369,7 @@ export default function Members() {
       
       // Add data rows
       exportedMembers.forEach((m: any, index: number) => {
-         const isSalary = m.membershipType === 'Salary-Based';
+         const isSalary = m.membershipType === 'Salary-Based Members';
          aoaData.push([
            index + 1,
            m.fullName,
@@ -788,15 +788,15 @@ export default function Members() {
                 <th>{selectedSectorType ? t(SECTOR_UNIT_LABELS[selectedSectorType]) : t('common.sector_unit')}</th>
                 <th>{t('common.member_category')}</th>
                 {/* Dynamic financial columns based on dominant member type */}
-                {members.some(m => m.membershipType === 'Salary-Based') && <>
+                {members.some(m => m.membershipType === 'Salary-Based Members') && <>
                   <th>{t('common.gross_salary_etb')}</th>
                   <th>{t('common.pension_etb')}</th>
                   <th>{t('common.income_tax_etb')}</th>
                   <th>{t('common.net_salary_etb')}</th>
                   <th>{t('common.contribution_percent')}</th>
                 </>}
-                {members.some(m => m.membershipType === 'Business') && <th>{t('common.business_type')}</th>}
-                {members.some(m => m.membershipType === 'Investor') && <th>{t('common.capital')}</th>}
+                {members.some(m => m.membershipType === 'Business Members') && <th>{t('common.business_type')}</th>}
+                {members.some(m => m.membershipType === 'Investor Members') && <th>{t('common.capital')}</th>}
                 <th>{t('common.contribution_in_etb')}</th>
                 <th>{t('common.payment_status')}</th>
                 <th>{t('common.action')}</th>
@@ -833,18 +833,18 @@ export default function Members() {
                     <td>{member.gender === 'Male' ? t('common.male') : member.gender === 'Female' ? t('common.female') : member.gender}</td>
                     <td>{member.branch ? t(`common.${member.branch}`, { defaultValue: member.branch }) : (member.sectorUnit?.name ? t(`common.${member.sectorUnit.name}`, { defaultValue: member.sectorUnit.name }) : '-')}</td>
                     <td><span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase tracking-tighter">{member.sector ? t(`common.${member.sector}`, { defaultValue: member.sector }) : (member.memberCategory?.name ? t(`common.${member.memberCategory.name}`, { defaultValue: member.memberCategory.name }) : t(`common.${member.membershipType}`, { defaultValue: member.membershipType }))}</span></td>
-                    {members.some(m => m.membershipType === 'Salary-Based') && <>
-                      <td>{member.membershipType === 'Salary-Based' ? member.financial.salary.toLocaleString() : '-'}</td>
-                      <td className="text-orange-600">{member.membershipType === 'Salary-Based' ? (member.netSalary?.pensionDeduction?.toLocaleString() || 0) : '-'}</td>
-                      <td className="text-red-600">{member.membershipType === 'Salary-Based' ? (member.netSalary?.taxDeduction?.toLocaleString() || 0) : '-'}</td>
-                      <td className="text-green-600 font-semibold">{member.membershipType === 'Salary-Based' ? (member.netSalary?.netSalary?.toLocaleString() || 0) : '-'}</td>
-                      <td>{member.membershipType === 'Salary-Based' ? `${member.contribution.percentage}%` : '-'}</td>
+                    {members.some(m => m.membershipType === 'Salary-Based Members') && <>
+                      <td>{member.membershipType === 'Salary-Based Members' ? member.financial.salary.toLocaleString() : '-'}</td>
+                      <td className="text-orange-600">{member.membershipType === 'Salary-Based Members' ? (member.netSalary?.pensionDeduction?.toLocaleString() || 0) : '-'}</td>
+                      <td className="text-red-600">{member.membershipType === 'Salary-Based Members' ? (member.netSalary?.taxDeduction?.toLocaleString() || 0) : '-'}</td>
+                      <td className="text-green-600 font-semibold">{member.membershipType === 'Salary-Based Members' ? (member.netSalary?.netSalary?.toLocaleString() || 0) : '-'}</td>
+                      <td>{member.membershipType === 'Salary-Based Members' ? `${member.contribution.percentage}%` : '-'}</td>
                     </>}
-                    {members.some(m => m.membershipType === 'Business') && 
-                      <td>{member.membershipType === 'Business' ? (member.financial.businessType || '-') : '-'}</td>
+                    {members.some(m => m.membershipType === 'Business Members') && 
+                      <td>{member.membershipType === 'Business Members' ? (member.financial.businessType || '-') : '-'}</td>
                     }
-                    {members.some(m => m.membershipType === 'Investor') && 
-                      <td>{member.membershipType === 'Investor' ? (member.financial.capital?.toLocaleString() || 0) : '-'}</td>
+                    {members.some(m => m.membershipType === 'Investor Members') && 
+                      <td>{member.membershipType === 'Investor Members' ? (member.financial.capital?.toLocaleString() || 0) : '-'}</td>
                     }
                     <td className="font-semibold">{member.contribution.monthlyFee.toLocaleString()}</td>
                     <td>{getPaymentBadge(member.paymentStatus)}</td>

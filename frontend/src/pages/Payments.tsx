@@ -622,11 +622,11 @@ export default function Payments() {
               className="input"
             >
               <option value="">All Types</option>
-              <option value="Salary-Based">Salary-Based</option>
-              <option value="Non-Salary">Non-Salary</option>
-              <option value="Business">Business</option>
-              <option value="Investor">Investor</option>
-              <option value="Student">Student</option>
+              <option value="Salary-Based Members">Salary-Based</option>
+              <option value="Non-Salary Members">Non-Salary</option>
+              <option value="Business Members">Business</option>
+              <option value="Investor Members">Investor</option>
+              <option value="Student Members">Student</option>
             </select>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

@@ -22,7 +22,7 @@ class ClassificationEngine {
 
     // Determine subType and calculate fees
     switch (membershipType) {
-      case 'Salary-Based':
+      case 'Salary-Based Members':
         const salaryClass = this.classifySalaryBased(financial, rules, manualFinancial);
         subType = salaryClass.subType;
         percentage = salaryClass.percentage;
@@ -31,34 +31,34 @@ class ClassificationEngine {
         classificationRuleId = salaryClass.ruleId;
         break;
 
-      case 'Non-Salary':
+      case 'Non-Salary Members':
         const nonSalaryClass = this.classifyNonSalary(financial, rules);
         subType = nonSalaryClass.subType;
         monthlyFee = nonSalaryClass.monthlyFee;
         classificationRuleId = nonSalaryClass.ruleId;
         break;
 
-      case 'Student':
-        subType = 'Student';
+      case 'Student Members':
+        subType = 'Student Members';
         monthlyFee = rules?.fixedFees?.student ?? 1; // Settings override
         classificationRuleId = 'STUDENT-FIXED';
         break;
 
-      case 'Business':
+      case 'Business Members':
         const businessClass = this.classifyBusiness(financial, rules);
         subType = businessClass.subType;
         monthlyFee = businessClass.monthlyFee;
         classificationRuleId = businessClass.ruleId;
         break;
 
-      case 'Investor':
+      case 'Investor Members':
         const investorClass = this.classifyInvestor(financial, rules);
-        subType = 'Investor';
+        subType = 'Investor Members';
         monthlyFee = investorClass.monthlyFee;
         classificationRuleId = investorClass.ruleId;
         break;
 
-      case 'Wing': {
+      case 'Wing Members': {
         const wingOccupation = financial.occupationType || '';
         const wingSalary     = financial.salary || 0;
         const wSettings      = rules?.wing || {};

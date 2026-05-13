@@ -276,22 +276,22 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
 
   const selectedCat = categories.find(c => String(c.id) === selectedCategoryId);
   const catName = selectedCat?.name.toLowerCase() || '';
-  let mType = 'Salary-Based';
-  if (catName.includes('wing')) mType = 'Wing';
-  else if (catName.includes('enterprise')) mType = 'Business';
-  else if (catName.includes('student')) mType = 'Student';
-  else if (catName.includes('investor')) mType = 'Investor';
-  else if (catName.includes('resident') || catName.includes('farmer')) mType = 'Non-Salary';
+  let mType = 'Salary-Based Members';
+  if (catName.includes('wing')) mType = 'Wing Members';
+  else if (catName.includes('enterprise')) mType = 'Business Members';
+  else if (catName.includes('student')) mType = 'Student Members';
+  else if (catName.includes('investor')) mType = 'Investor Members';
+  else if (catName.includes('resident') || catName.includes('farmer')) mType = 'Non-Salary Members';
 
   const handleSaveAll = async () => {
     if (!selectedSectorId || !selectedCategoryId) {
       setError(t('common.please_select_sector_and_category'));
       return;
     }
-    const isSalaryRequired = mType === 'Salary-Based' || mType === 'Investor';
+    const isSalaryRequired = mType === 'Salary-Based Members' || mType === 'Investor Members';
     const validRows = rows.filter(r => {
       const nameOk = r.fullName.trim() !== '';
-      const salaryOk = isSalaryRequired ? parseNumeric(r.grossSalary) > 0 : (mType === 'Business' ? !!r.grossSalary : true);
+      const salaryOk = isSalaryRequired ? parseNumeric(r.grossSalary) > 0 : (mType === 'Business Members' ? !!r.grossSalary : true);
       return nameOk && salaryOk;
     });
     if (validRows.length === 0) {
@@ -305,10 +305,10 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
         fullName: r.fullName,
         gender: r.gender,
         financial: {
-          salary: mType === 'Salary-Based' || mType === 'Wing' ? parseNumeric(r.grossSalary) : 0,
-          capital: mType === 'Investor' ? parseNumeric(r.grossSalary) : 0,
-          income: mType === 'Business' && !isNaN(Number(r.grossSalary)) ? Number(r.grossSalary) : 0,
-          businessType: mType === 'Business' ? r.grossSalary : undefined,
+          salary: mType === 'Salary-Based Members' || mType === 'Wing Members' ? parseNumeric(r.grossSalary) : 0,
+          capital: mType === 'Investor Members' ? parseNumeric(r.grossSalary) : 0,
+          income: mType === 'Business Members' && !isNaN(Number(r.grossSalary)) ? Number(r.grossSalary) : 0,
+          businessType: mType === 'Business Members' ? r.grossSalary : undefined,
           employmentType: employmentType,
           currency: 'ETB',
           occupationType: 'Informal'
@@ -452,7 +452,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                   <th className="px-4 py-3 w-12 text-center text-gray-500">ተ.ቁ.</th>
                   <th className="px-4 py-3">{t('common.full_name')}</th>
                   <th className="px-4 py-3 w-32">{t('common.sex')}</th>
-                  {(mType === 'Salary-Based' || mType === 'Wing') && (
+                  {(mType === 'Salary-Based Members' || mType === 'Wing Members') && (
                     <>
                       <th className="px-4 py-3 w-40">{t('common.gross_salary_etb')}</th>
                       <th className="px-4 py-3 w-32">{t('common.income_tax_etb')}</th>
@@ -461,8 +461,8 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                       <th className="px-4 py-3 w-24">%</th>
                     </>
                   )}
-                  {mType === 'Business' && <th className="px-4 py-3 w-40">{t('common.business_type')}</th>}
-                  {mType === 'Investor' && <th className="px-4 py-3 w-40">{t('common.capital')} (ETB)</th>}
+                  {mType === 'Business Members' && <th className="px-4 py-3 w-40">{t('common.business_type')}</th>}
+                  {mType === 'Investor Members' && <th className="px-4 py-3 w-40">{t('common.capital')} (ETB)</th>}
                   <th className="px-4 py-3 w-36">{t('common.monthly_fee')}</th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
@@ -496,7 +496,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         <option value="Female">{t('common.female')} (F/ሴ)</option>
                       </select>
                     </td>
-                    {(mType === 'Salary-Based' || mType === 'Wing' || mType === 'Investor') && (
+                    {(mType === 'Salary-Based Members' || mType === 'Wing Members' || mType === 'Investor Members') && (
                       <td className="px-4 py-1">
                         <input
                           type="number"
@@ -509,7 +509,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         />
                       </td>
                     )}
-                    {mType === 'Business' && (
+                    {mType === 'Business Members' && (
                       <td className="px-4 py-1">
                         <select
                           name={`grossSalary-${index}`}
@@ -524,7 +524,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                         </select>
                       </td>
                     )}
-                    {(mType === 'Salary-Based' || mType === 'Wing') && (
+                    {(mType === 'Salary-Based Members' || mType === 'Wing Members') && (
                       <>
                         <td className="px-4 py-2 text-gray-500 font-mono text-xs">{row.tax > 0 ? row.tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
                         <td className="px-4 py-2 text-gray-500 font-mono text-xs">{row.pension > 0 ? row.pension.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
@@ -533,7 +533,7 @@ export default function FastEntryModal({ onClose, onSuccess, sectorTypes, catego
                       </>
                     )}
                     <td className="px-4 py-2 text-green-600 dark:text-green-400 font-mono font-bold text-sm">
-                      {row.monthlyFee > 0 ? row.monthlyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : (mType === 'Student' || mType === 'Non-Salary' ? calculateRow('0', settings, employmentType).monthlyFee : '-')}
+                      {row.monthlyFee > 0 ? row.monthlyFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : (mType === 'Student Members' || mType === 'Non-Salary Members' ? calculateRow('0', settings, employmentType).monthlyFee : '-')}
                     </td>
                     <td className="px-4 py-2 text-center text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => removeRow(index)} className="hover:text-red-500 transition-colors p-1" title="Remove row">
