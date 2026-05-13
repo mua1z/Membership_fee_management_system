@@ -4,24 +4,30 @@ const User = require('./backend/models/User');
 
 async function resetAdminPassword() {
   try {
-    const admin = await User.findOne({ where: { email: 'admin@mcms.gov.et' } });
-    if (admin) {
-      console.log('Found admin user. Resetting password...');
-      admin.password = 'adminpassword123';
-      await admin.save();
-      console.log('Password reset successfully for admin@mcms.gov.et');
-      console.log('New Password: adminpassword123');
-    } else {
-      console.log('Admin user not found. Creating one...');
-      await User.create({
-        username: 'admin',
-        email: 'admin@mcms.gov.et',
-        password: 'adminpassword123',
-        fullName: 'System Administrator',
-        role: 'admin'
-      });
-      console.log('Admin user created successfully.');
+    const usersToReset = [
+      { email: 'admin@mcms.gov.et', username: 'admin' },
+      { email: 'superadmin@mcms.gov.et', username: 'superadmin' }
+    ];
+
+    for (const u of usersToReset) {
+      const existing = await User.findOne({ where: { email: u.email } });
+      if (existing) {
+        console.log(`Resetting password for ${u.email}...`);
+        existing.password = 'adminpassword123';
+        await existing.save();
+      } else {
+        console.log(`Creating user ${u.email}...`);
+        await User.create({
+          username: u.username,
+          email: u.email,
+          password: 'adminpassword123',
+          fullName: 'System Administrator',
+          role: 'admin'
+        });
+      }
     }
+    console.log('Admin users synchronized successfully.');
+
   } catch (err) {
     console.error('Error:', err);
   } finally {

@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const User = require('../models/User');
 const SectorUnit = require('../models/SectorUnit');
+const bcrypt = require('bcryptjs');
+
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -52,17 +54,20 @@ exports.login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password.' });
     }
-
     const cleanEmail = email.trim().toLowerCase();
     const user = await User.findOne({ where: { email: cleanEmail } });
+
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
+
+
 
     if (!user.isActive) {
       return res.status(403).json({ success: false, message: 'Account is deactivated.' });
