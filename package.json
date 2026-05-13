@@ -21,8 +21,10 @@
     "mysql2": "^3.22.3",
     "sequelize": "^6.37.8",
     "uuid": "^14.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^5.0.8"
   },
+
   "devDependencies": {
   }
 }
