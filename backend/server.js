@@ -131,6 +131,33 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Temporary setup route to force-create admin on the live database
+app.get('/api/setup-admin', async (req, res) => {
+  try {
+    const adminEmail = 'admin@mcms.gov.et';
+    let user = await User.findOne({ where: { email: adminEmail } });
+    
+    if (user) {
+      user.password = 'adminpassword123';
+      await user.save();
+      res.json({ success: true, message: 'Admin user updated with password.' });
+    } else {
+      user = await User.create({
+        username: 'admin',
+        email: adminEmail,
+        password: 'adminpassword123',
+        fullName: 'System Administrator',
+        role: 'admin',
+        isActive: true
+      });
+      res.json({ success: true, message: 'Admin user created successfully.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 
 
 // Error Handling Middleware
